@@ -10,6 +10,7 @@ HsSnapshotStorageTestCase >> testSaveAndLoad [
 	| spaceId versions models modelSpace snapStorage |
 	spaceId := 'hs-ssSaveAndLoad'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
 	models := {#a -> 'aaa'} asDictionary.
 	modelSpace models: models.
 	modelSpace saveSnapshot: (RsStreamMessageId idWithAutoSequence: 0).
@@ -32,7 +33,6 @@ HsSnapshotStorageTestCase >> testSaveAndLoad [
 	
 	modelSpace loadSnapshot: versions first.
 	self assert: (modelSpace models at: #a) equals: 'aaa'.
-
-	snapStorage destroy.
-
+	]
+	
 ]

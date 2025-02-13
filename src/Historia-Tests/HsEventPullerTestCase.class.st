@@ -10,6 +10,8 @@ HsEventPullerTestCase >> testPullEvents [
 	| spaceId modelSpace vmodel modelSpace2 puller vmodel2 |
 	spaceId := 'test-eventPullEvents'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	
@@ -18,7 +20,6 @@ HsEventPullerTestCase >> testPullEvents [
 	vmodel value: 3.
 	vmodel save.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	puller := modelSpace2 eventPuller.
 	puller loopingPriority: Processor userSchedulingPriority.
@@ -29,7 +30,5 @@ HsEventPullerTestCase >> testPullEvents [
 	vmodel2 := modelSpace2 modelAt: 'val-1'.
 	self assert: (vmodel2 value) equals: 3.
 	self assert: (modelSpace eventJournalStorage lastEventVersion) equals: (modelSpace2 lastExecutedVersion).
-	
-	modelSpace eventPusher destroy.
-	modelSpace2 eventPuller destroy.
+	]
 ]

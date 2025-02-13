@@ -11,7 +11,7 @@ HsModelTestCase >> testAddAndRemoveValuesOnModel [
 	spaceId := 'test-mdAddAndRemoveValuesOnModel'.
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
-	[  
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
 	vmodel := modelSpace modelAt: 'vals-1'.
 	1 to: 5 do: [ :idx | vmodel add: idx].
@@ -34,10 +34,6 @@ HsModelTestCase >> testAddAndRemoveValuesOnModel [
 		modelSpace eventPusher waitEmptyFor: 100.
 	].
 	self assert: values2 size equals: 1.
-	
-	] ensure: [
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
 	]
 ]
 
@@ -47,7 +43,7 @@ HsModelTestCase >> testAddValuesOnModel [
 	spaceId := 'test-mdAddValuesOnModel'.
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
-	[
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
 	vmodel := modelSpace modelAt: 'vals-1'.
 	1 to: 5 do: [ :idx | vmodel add: idx].
@@ -62,10 +58,6 @@ HsModelTestCase >> testAddValuesOnModel [
 	values2 := modelSpace2 modelAt: 'vals-1'.
 	self assert: values2 size equals: 5.
 	self assertCollection: values2 asArray equals: vmodel values asArray.
-
-	] ensure: [
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
 	]
 ]
 
@@ -75,7 +67,7 @@ HsModelTestCase >> testSaveLoadSnapshots [
 	spaceId := 'test-mdSaveLoadSnapshots'.
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
-	[
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -96,9 +88,5 @@ HsModelTestCase >> testSaveLoadSnapshots [
 	self assert: (modelSpace2 modelAt: 'val-1') equals: nil.
 	modelSpace2 loadSnapshot: snapshotVersion.
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 3.
-	
-	] ensure: [
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
 	]
 ]
