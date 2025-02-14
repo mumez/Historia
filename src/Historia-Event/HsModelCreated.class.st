@@ -26,11 +26,16 @@ HsModelCreated >> className: newName [
 	self argsAt: 'className' put: newName
 ]
 
+{ #category : 'private' }
+HsModelCreated >> createInstanceOf: modelClass [
+	^ modelClass id: self modelId
+]
+
 { #category : 'actions' }
 HsModelCreated >> executeOn: modelSpace [
 	| modelClass |
 	modelClass := modelSpace executionContextClassAt: self className ifAbsent: [].
-	modelClass ifNotNil: [ modelSpace putModel: (modelClass id: self modelId) ].
+	modelClass ifNotNil: [ modelSpace putModel: (self createInstanceOf: modelClass) ].
 	modelSpace handleSinked: self
 ]
 

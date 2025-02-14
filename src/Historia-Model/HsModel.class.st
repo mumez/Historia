@@ -72,10 +72,15 @@ HsModel >> id: anObject [
 { #category : 'callback' }
 HsModel >> instanceCreated: aModelSpace [
 	self modelSpace: aModelSpace.
-	self mutate: HsModelCreated using: [ :ev |
+	self mutate: self modelCreatedEventClass using: [ :ev |
 		ev
 			className: self className;
 			modelId: self id ]
+]
+
+{ #category : 'factory' }
+HsModel >> modelCreatedEventClass [
+	^ HsModelCreated
 ]
 
 { #category : 'accessing' }
