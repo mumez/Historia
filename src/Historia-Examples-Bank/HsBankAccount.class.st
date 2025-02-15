@@ -5,12 +5,27 @@ Class {
 		'name',
 		'emailAddress',
 		'balance',
-		'isClosed',
-		'overdraftLimit'
+		'overdraftLimit',
+		'closedTimestamp'
 	],
 	#category : 'Historia-Examples-Bank',
 	#package : 'Historia-Examples-Bank'
 }
+
+{ #category : 'applying' }
+HsBankAccount >> applyBalance: newBalance [
+	balance := newBalance 
+]
+
+{ #category : 'applying' }
+HsBankAccount >> applyClosedTimestamp: aClosedTimestamp [
+	closedTimestamp := aClosedTimestamp 
+]
+
+{ #category : 'applying' }
+HsBankAccount >> applyOverdraftLimit: newLimit [
+	overdraftLimit := newLimit 
+]
 
 { #category : 'accessing' }
 HsBankAccount >> balance [
@@ -18,10 +33,23 @@ HsBankAccount >> balance [
 	^ balance
 ]
 
-{ #category : 'accessing' }
-HsBankAccount >> balance: anObject [
+{ #category : 'mutating' }
+HsBankAccount >> balance: newBalance [
+	self mutate: HsBankAccountBalanceChanged using: [ :ev |
+		ev
+			setTransactionId;
+			value: newBalance ]
+]
 
-	balance := anObject
+{ #category : 'mutating' }
+HsBankAccount >> close [
+	self mutate: HsBankAccountOverdraftLimitChanged using: [ :ev | ev setClosedTimestamp ]
+]
+
+{ #category : 'accessing' }
+HsBankAccount >> closedTimestamp [
+
+	^ closedTimestamp
 ]
 
 { #category : 'accessing' }
@@ -40,25 +68,18 @@ HsBankAccount >> emailAddress: anObject [
 HsBankAccount >> initialize [
 	super initialize.
 	balance := 0.
-	isClosed := false.
 	overdraftLimit := 0.
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 HsBankAccount >> isClosed [
 
-	^ isClosed
-]
-
-{ #category : 'accessing' }
-HsBankAccount >> isClosed: anObject [
-
-	isClosed := anObject
+	^ self closedTimestamp notNil
 ]
 
 { #category : 'factory' }
 HsBankAccount >> modelCreatedEventClass [
-	^ HsBankOpened
+	^ HsBankAccountOpened
 ]
 
 { #category : 'accessing' }
@@ -79,8 +100,7 @@ HsBankAccount >> overdraftLimit [
 	^ overdraftLimit
 ]
 
-{ #category : 'accessing' }
-HsBankAccount >> overdraftLimit: anObject [
-
-	overdraftLimit := anObject
+{ #category : 'mutating' }
+HsBankAccount >> overdraftLimit: newLimit [
+	self mutate: HsBankAccountOverdraftLimitChanged using: [ :ev | ev value: newLimit ]
 ]

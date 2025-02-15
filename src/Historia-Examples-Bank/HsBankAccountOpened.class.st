@@ -1,12 +1,12 @@
 Class {
-	#name : 'HsBankOpened',
+	#name : 'HsBankAccountOpened',
 	#superclass : 'HsModelCreated',
 	#category : 'Historia-Examples-Bank',
 	#package : 'Historia-Examples-Bank'
 }
 
 { #category : 'private' }
-HsBankOpened >> createInstanceOf: modelClass [
+HsBankAccountOpened >> createInstanceOf: modelClass [
 	| inst |
 	inst := super createInstanceOf: modelClass.
 	inst name: self name.
@@ -15,21 +15,21 @@ HsBankOpened >> createInstanceOf: modelClass [
 ]
 
 { #category : 'accessing' }
-HsBankOpened >> emailAddress [
+HsBankAccountOpened >> emailAddress [
 	^ self argsAt: 'emailAddress'
 ]
 
 { #category : 'accessing' }
-HsBankOpened >> emailAddress: aString [
+HsBankAccountOpened >> emailAddress: aString [
 	self argsAt: 'emailAddress' put: aString
 ]
 
 { #category : 'accessing' }
-HsBankOpened >> name [
+HsBankAccountOpened >> name [
 	^ self argsAt: 'name'
 ]
 
 { #category : 'accessing' }
-HsBankOpened >> name: aString [
+HsBankAccountOpened >> name: aString [
 	self argsAt: 'name' put: aString
 ]
