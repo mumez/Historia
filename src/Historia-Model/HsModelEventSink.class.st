@@ -200,9 +200,14 @@ HsModelEventSink >> putModel: aModel [
 
 { #category : 'actions-model' }
 HsModelEventSink >> putModelOf: modelClass id: modelId [ 
+	^ self putModelOf: modelClass id: modelId initializing: [:model | ]
+]
+
+{ #category : 'actions-model' }
+HsModelEventSink >> putModelOf: modelClass id: modelId initializing: initializerBlock [
 	| newModel |
-	newModel := (modelClass id: modelId).
-	newModel instanceCreated: self.
+	newModel := modelClass id: modelId.
+	newModel instanceCreated: self initializing: initializerBlock.
 	^ newModel
 ]
 

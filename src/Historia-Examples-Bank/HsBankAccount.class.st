@@ -12,9 +12,20 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'mutating' }
+HsBankAccount >> appendBalanceChange: newChange [
+	self isClosed ifTrue: [ self error: 'closed' ].
+	( self balance + newChange <  self overdraftLimit negated ) ifTrue: [ self error: 'overdraft' ].
+	
+	self mutate: HsBankAccountBalanceChanged using: [ :ev |
+		ev
+			setTransactionId;
+			value: newChange ]
+]
+
 { #category : 'applying' }
-HsBankAccount >> applyBalance: newBalance [
-	balance := newBalance 
+HsBankAccount >> applyBalanceChange: newBalanceChange [
+	self isClosed ifTrue: [ self error: 'Closed' ].
 ]
 
 { #category : 'applying' }
@@ -31,14 +42,6 @@ HsBankAccount >> applyOverdraftLimit: newLimit [
 HsBankAccount >> balance [
 
 	^ balance
-]
-
-{ #category : 'mutating' }
-HsBankAccount >> balance: newBalance [
-	self mutate: HsBankAccountBalanceChanged using: [ :ev |
-		ev
-			setTransactionId;
-			value: newBalance ]
 ]
 
 { #category : 'mutating' }

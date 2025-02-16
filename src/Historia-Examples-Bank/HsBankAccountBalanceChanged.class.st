@@ -7,7 +7,7 @@ Class {
 
 { #category : 'mutating' }
 HsBankAccountBalanceChanged >> applyTo: target [
-	target applyBalance: self value
+	target applyBalanceChange: self value
 ]
 
 { #category : 'actions' }

@@ -76,12 +76,13 @@ HsModel >> id: anObject [
 ]
 
 { #category : 'callback' }
-HsModel >> instanceCreated: aModelSpace [
+HsModel >> instanceCreated: aModelSpace initializing: initializerBlock [
 	self modelSpace: aModelSpace.
 	self mutate: self modelCreatedEventClass using: [ :ev |
 		ev
 			className: self className;
-			modelId: self id ]
+			modelId: self id.
+		initializerBlock value: ev ]
 ]
 
 { #category : 'factory' }
