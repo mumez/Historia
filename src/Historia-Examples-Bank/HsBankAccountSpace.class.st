@@ -5,10 +5,20 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'private' }
+HsBankAccountSpace >> accountAt: accountId [
+	| acc |
+	acc := self
+		       modelAt: accountId
+		       ifAbsent: [
+		       (HsBankAccountNotExist accountId: accountId) raise ].
+	^ acc
+]
+
 { #category : 'closing account' }
 HsBankAccountSpace >> closeAccountAt: accountId [ 
 	| acc |
-	acc := self modelAt: accountId ifAbsent: [^self].
+	acc := self accountAt: accountId.
 	acc close.
 	self save: acc
 ]
@@ -16,7 +26,7 @@ HsBankAccountSpace >> closeAccountAt: accountId [
 { #category : 'actions' }
 HsBankAccountSpace >> deposit: amount at: accountId [ 
 	| acc |
-	acc := self modelAt: accountId ifAbsent: [^self].
+	acc := self accountAt: accountId.
 	acc appendBalanceChange: amount.
 	self save: acc
 ]
@@ -24,7 +34,7 @@ HsBankAccountSpace >> deposit: amount at: accountId [
 { #category : 'actions' }
 HsBankAccountSpace >> getBalanceAt: accountId [
 	| acc |
-	acc := self modelAt: accountId ifAbsent: [^self].
+	acc := self accountAt: accountId.
 	^ acc balance
 ]
 
@@ -47,7 +57,7 @@ HsBankAccountSpace >> openAccount: modelId name: accountName emailAddress: email
 { #category : 'actions' }
 HsBankAccountSpace >> overdraftLimit: overdraftLimit at: accountId [ 
 	| acc |
-	acc := self modelAt: accountId ifAbsent: [^self].
+	acc := self accountAt: accountId.
 	acc overdraftLimit: overdraftLimit.
 	self save: acc
 ]
@@ -55,7 +65,7 @@ HsBankAccountSpace >> overdraftLimit: overdraftLimit at: accountId [
 { #category : 'actions' }
 HsBankAccountSpace >> withdraw: amount at: accountId [ 
 	| acc |
-	acc := self modelAt: accountId ifAbsent: [^self].
+	acc := self accountAt: accountId.
 	acc appendBalanceChange: amount negated.
 	self save: acc
 ]
