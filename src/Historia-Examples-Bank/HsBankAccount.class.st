@@ -14,9 +14,8 @@ Class {
 
 { #category : 'mutating' }
 HsBankAccount >> appendBalanceChange: newChange [
-	self isClosed ifTrue: [ self error: 'closed' ].
-	( self balance + newChange <  self overdraftLimit negated ) ifTrue: [ self error: 'overdraft' ].
-	
+	self assertNotClosed.
+	self assertWithinOverdraftLimit: newChange.
 	self mutate: HsBankAccountBalanceChanged using: [ :ev |
 		ev
 			setTransactionId;
@@ -36,6 +35,17 @@ HsBankAccount >> applyClosedTimestamp: aClosedTimestamp [
 { #category : 'applying' }
 HsBankAccount >> applyOverdraftLimit: newLimit [
 	overdraftLimit := newLimit 
+]
+
+{ #category : 'asserting' }
+HsBankAccount >> assertNotClosed [
+	self isClosed ifTrue: [self raiseAccountNotOpen: self id].
+	
+]
+
+{ #category : 'asserting' }
+HsBankAccount >> assertWithinOverdraftLimit: newChange [
+	( self balance + newChange <  self overdraftLimit negated ) ifTrue: [self raiseInsufficientFunds: self id limit: self overdraftLimit].
 ]
 
 { #category : 'accessing' }
@@ -106,4 +116,16 @@ HsBankAccount >> overdraftLimit [
 { #category : 'mutating' }
 HsBankAccount >> overdraftLimit: newLimit [
 	self mutate: HsBankAccountOverdraftLimitChanged using: [ :ev | ev value: newLimit ]
+]
+
+{ #category : 'errors' }
+HsBankAccount >> raiseAccountNotOpen: anAccountId [
+	(HsBankAccountNotOpen accountId: anAccountId) raise
+]
+
+{ #category : 'errors' }
+HsBankAccount >> raiseInsufficientFunds: anAccountId limit: anOverdraftLimit [
+	(HsBankAccountInsufficientFunds accountId: anAccountId)
+		overdraftLimit: anOverdraftLimit;
+		raise
 ]

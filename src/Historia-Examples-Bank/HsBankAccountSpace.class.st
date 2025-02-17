@@ -63,6 +63,18 @@ HsBankAccountSpace >> overdraftLimit: overdraftLimit at: accountId [
 ]
 
 { #category : 'actions' }
+HsBankAccountSpace >> transfer: amount from: fromAccountId to: toAccountId [
+	| fromAcc toAcc |
+	fromAcc := self accountAt: fromAccountId.
+	toAcc := self accountAt: toAccountId.
+	fromAcc appendBalanceChange: amount negated.
+	toAcc appendBalanceChange: amount negated.
+	self saveAll: {
+			fromAcc.
+			toAcc }
+]
+
+{ #category : 'actions' }
 HsBankAccountSpace >> withdraw: amount at: accountId [ 
 	| acc |
 	acc := self accountAt: accountId.
