@@ -15,6 +15,11 @@ HsBankAccountSpace >> accountAt: accountId [
 	^ acc
 ]
 
+{ #category : 'factory' }
+HsBankAccountSpace >> bankAccountModelClass [
+	^ HsBankAccount
+]
+
 { #category : 'closing account' }
 HsBankAccountSpace >> closeAccountAt: accountId [ 
 	| acc |
@@ -39,16 +44,16 @@ HsBankAccountSpace >> getBalanceAt: accountId [
 ]
 
 { #category : 'opening account' }
-HsBankAccountSpace >> openAccount: modelId initializing: initializerBlock [
+HsBankAccountSpace >> openAccount: accountId initializing: initializerBlock [
 	| acc |
-	acc := self putModelOf: HsBankAccountOpened id: modelId initializing: initializerBlock.
+	acc := self putModelOf: self bankAccountModelClass id: accountId initializing: initializerBlock.
 	self save: acc.
 	^ acc id
 ]
 
 { #category : 'opening account' }
-HsBankAccountSpace >> openAccount: modelId name: accountName emailAddress: emailAddress [
-	^ self openAccount: modelId initializing: [ :acc |
+HsBankAccountSpace >> openAccount: accountId name: accountName emailAddress: emailAddress [
+	^ self openAccount: accountId initializing: [ :acc |
 		  acc
 			  name: accountName;
 			  emailAddress: emailAddress ]

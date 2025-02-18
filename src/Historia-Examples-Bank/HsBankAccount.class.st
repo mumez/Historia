@@ -33,6 +33,12 @@ HsBankAccount >> applyClosedTimestamp: aClosedTimestamp [
 ]
 
 { #category : 'applying' }
+HsBankAccount >> applyInitialize: aName emailAddress: anEmailAddress [
+	name := aName.
+	emailAddress := anEmailAddress 
+]
+
+{ #category : 'applying' }
 HsBankAccount >> applyOverdraftLimit: newLimit [
 	overdraftLimit := newLimit 
 ]

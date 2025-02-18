@@ -5,6 +5,12 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'applying' }
+HsBankAccountOpened >> applyTo: targetModel [
+	super applyTo: targetModel.
+	targetModel applyInitialize: self name emailAddress: self emailAddress
+]
+
 { #category : 'private' }
 HsBankAccountOpened >> createInstanceOf: modelClass [
 	| inst |
