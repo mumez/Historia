@@ -18,13 +18,18 @@ BaselineOfHistoria >> baseline: spec [
 		spec package: 'Historia-Model'.
 		spec package: 'Historia-Storage'.
 		spec package: 'Historia-Tests'.
+		spec package: 'Historia-Examples-Bank'.
+		spec package: 'Historia-Examples-Bank-Tests'.
 		spec
-			group: 'default' with: #( 'Core' 'Tests' );
+			group: 'default' with: #( 'Core' 'Tests' 'Examples' 'Examples-Tests');
 			group: 'Core'
 			with:
 				#( 'Historia-Core' 'Historia-Codec' 'Historia-Event'
 				   'Historia-Event-Processor' 'Historia-Model' 'Historia-Storage' );
-			group: 'Tests' with: #( 'Historia-Core' ) ]
+			group: 'Tests' with: #( 'Historia-Tests' );
+			group: 'Examples' with: #('Historia-Examples-Bank');
+			group: 'Examples-Tests' with: #('Historia-Examples-Bank-Tests').
+		]
 ]
 
 { #category : 'external projects' }
