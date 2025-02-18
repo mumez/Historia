@@ -56,7 +56,7 @@ HsBankAccount >> balance [
 
 { #category : 'mutating' }
 HsBankAccount >> close [
-	self mutate: HsBankAccountOverdraftLimitChanged using: [ :ev | ev setClosedTimestamp ]
+	self mutate: HsBankAccountClosed using: [ :ev | ev setClosedTimestamp ]
 ]
 
 { #category : 'accessing' }
@@ -115,7 +115,7 @@ HsBankAccount >> overdraftLimit [
 
 { #category : 'mutating' }
 HsBankAccount >> overdraftLimit: newLimit [
-	self mutate: HsBankAccountOverdraftLimitChanged using: [ :ev | ev value: newLimit ]
+	self mutate: HsBankAccountOverdraftLimitChanged using: [ :ev | ev value: newLimit abs]
 ]
 
 { #category : 'errors' }

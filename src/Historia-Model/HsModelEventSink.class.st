@@ -30,6 +30,11 @@ HsModelEventSink >> catchup [
 	self setupFrom: snapVersion.
 ]
 
+{ #category : 'defaults' }
+HsModelEventSink >> defaultSettings [
+	^ HsSettings defaultCopied
+]
+
 { #category : 'actions-model' }
 HsModelEventSink >> deleteModel: aModel [
 	aModel modelSpace: self.
@@ -225,7 +230,7 @@ HsModelEventSink >> replayFrom: fromEventVersionId [
 
 { #category : 'accessing' }
 HsModelEventSink >> settings [
-	^ settings ifNil: [ settings := HsSettings defaultCopied ]
+	^ settings ifNil: [ settings := self defaultSettings ]
 ]
 
 { #category : 'accessing' }

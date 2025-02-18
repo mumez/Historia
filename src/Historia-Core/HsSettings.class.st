@@ -125,6 +125,16 @@ HsSettings >> settingsDict: anObject [
 ]
 
 { #category : 'accessing' }
+HsSettings >> shouldAutoStartEventPusher [
+	^ self at: #shouldAutoStartEventPusher ifAbsentPut: [false]
+]
+
+{ #category : 'accessing' }
+HsSettings >> shouldAutoStartEventPusher: aBoolean [
+	^ self at: #shouldAutoStartEventPusher put: aBoolean
+]
+
+{ #category : 'accessing' }
 HsSettings >> snapshotCodec [
 	^ self at: #snapshotCodec ifAbsentPut: [#fuel]
 ]

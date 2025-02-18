@@ -8,6 +8,13 @@ Class {
 	#package : 'Historia-Model'
 }
 
+{ #category : 'defaults' }
+HsModelSpace >> defaultSettings [
+	^ super defaultSettings
+		  shouldAutoStartEventPusher: false;
+		  yourself
+]
+
 { #category : 'accessing' }
 HsModelSpace >> eventPusher [
 

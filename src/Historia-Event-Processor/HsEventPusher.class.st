@@ -10,9 +10,8 @@ Class {
 
 { #category : 'instance creation' }
 HsEventPusher class >> on: aModelSpace [
-	^ (self spaceId: aModelSpace spaceId)
-		  settings: aModelSpace settings;
-		  eventJournalStorage: aModelSpace eventJournalStorage;
+	^ self new
+		  initWithModelSpace: aModelSpace;
 		  yourself
 ]
 
@@ -47,6 +46,15 @@ HsEventPusher >> eventJournalStorage: anObject [
 { #category : 'accessing' }
 HsEventPusher >> eventStream [
 	^ self eventJournalStorage eventStream
+]
+
+{ #category : 'initializing' }
+HsEventPusher >> initWithModelSpace: aModelSpace [
+	spaceId := aModelSpace spaceId.
+	settings := aModelSpace settings.
+	eventJournalStorage := aModelSpace eventJournalStorage.
+	
+	settings shouldAutoStartEventPusher ifTrue: [ self start ]
 ]
 
 { #category : 'actions' }
