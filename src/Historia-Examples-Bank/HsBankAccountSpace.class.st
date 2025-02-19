@@ -43,6 +43,13 @@ HsBankAccountSpace >> getBalanceAt: accountId [
 	^ acc balance
 ]
 
+{ #category : 'actions' }
+HsBankAccountSpace >> getOverdraftLimitAt: accountId [
+	| acc |
+	acc := self accountAt: accountId.
+	^ acc overdraftLimit
+]
+
 { #category : 'opening account' }
 HsBankAccountSpace >> openAccount: accountId initializing: initializerBlock [
 	| acc |

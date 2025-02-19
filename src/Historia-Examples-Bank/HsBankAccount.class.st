@@ -24,7 +24,7 @@ HsBankAccount >> appendBalanceChange: newChange [
 
 { #category : 'applying' }
 HsBankAccount >> applyBalanceChange: newBalanceChange [
-	self isClosed ifTrue: [ self error: 'Closed' ].
+	balance := balance + newBalanceChange 
 ]
 
 { #category : 'applying' }
@@ -126,12 +126,12 @@ HsBankAccount >> overdraftLimit: newLimit [
 
 { #category : 'errors' }
 HsBankAccount >> raiseAccountNotOpen: anAccountId [
-	(HsBankAccountNotOpen accountId: anAccountId) raise
+	(HsBankAccountNotOpen accountId: anAccountId) signal
 ]
 
 { #category : 'errors' }
 HsBankAccount >> raiseInsufficientFunds: anAccountId limit: anOverdraftLimit [
 	(HsBankAccountInsufficientFunds accountId: anAccountId)
 		overdraftLimit: anOverdraftLimit;
-		raise
+		signal
 ]
