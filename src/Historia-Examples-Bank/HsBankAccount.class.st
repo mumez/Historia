@@ -45,13 +45,13 @@ HsBankAccount >> applyOverdraftLimit: newLimit [
 
 { #category : 'asserting' }
 HsBankAccount >> assertNotClosed [
-	self isClosed ifTrue: [self raiseAccountNotOpen: self id].
+	self isClosed ifTrue: [self raiseInactive].
 	
 ]
 
 { #category : 'asserting' }
 HsBankAccount >> assertWithinOverdraftLimit: newChange [
-	( self balance + newChange <  self overdraftLimit negated ) ifTrue: [self raiseInsufficientFunds: self id limit: self overdraftLimit].
+	( self balance + newChange <  self overdraftLimit negated ) ifTrue: [self raiseInsufficientFunds].
 ]
 
 { #category : 'accessing' }
@@ -125,13 +125,15 @@ HsBankAccount >> overdraftLimit: newLimit [
 ]
 
 { #category : 'errors' }
-HsBankAccount >> raiseAccountNotOpen: anAccountId [
-	(HsBankAccountNotOpen accountId: anAccountId) signal
+HsBankAccount >> raiseInactive [
+	(HsBankAccountInactive accountId: self id)
+		closedTimestamp: self closedTimestamp;
+		signal
 ]
 
 { #category : 'errors' }
-HsBankAccount >> raiseInsufficientFunds: anAccountId limit: anOverdraftLimit [
-	(HsBankAccountInsufficientFunds accountId: anAccountId)
-		overdraftLimit: anOverdraftLimit;
+HsBankAccount >> raiseInsufficientFunds [
+	(HsBankAccountInsufficientFunds accountId: self id)
+		overdraftLimit: self overdraftLimit;
 		signal
 ]

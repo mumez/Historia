@@ -11,7 +11,7 @@ HsBankAccountSpace >> accountAt: accountId [
 	acc := self
 		       modelAt: accountId
 		       ifAbsent: [
-		       (HsBankAccountNotExist accountId: accountId) raise ].
+		       (HsBankAccountNotExist accountId: accountId) signal ].
 	^ acc
 ]
 
