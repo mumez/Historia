@@ -88,6 +88,43 @@ HsBankTestCase >> testAccountOpen [
 ]
 
 { #category : 'tests' }
+HsBankTestCase >> testAccountTransfer [
+	| spaceId bankApp accountId1 acc1 accountId2 acc2 |
+	spaceId := 'test-baAccountTransfer'.
+	bankApp := HsBankAccountSpace spaceId: spaceId.
+	accountId1 := 'acc-1'.
+	bankApp openAccount: accountId1 name: 'name-1' emailAddress: 'email-1'.
+	accountId2 := 'acc-2'.
+	bankApp openAccount: accountId2 name: 'name-2' emailAddress: 'email-2'.
+	acc1 := bankApp accountAt: accountId1.
+	self assert: acc1 name equals: 'name-1'.
+	self assert: acc1 emailAddress equals: 'email-1'.
+	self assert: (bankApp getBalanceAt: accountId1) equals: 0.
+	acc2 := bankApp accountAt: accountId2.
+	self assert: acc2 name equals: 'name-2'.
+	self assert: acc2 emailAddress equals: 'email-2'.
+	self assert: (bankApp getBalanceAt: accountId2) equals: 0.
+	bankApp deposit: 100 at: accountId1.
+	bankApp deposit: 10 at: accountId2. 
+	self assert: (bankApp getBalanceAt: accountId1) equals: 100.
+	self assert: (bankApp getBalanceAt: accountId2) equals: 10.
+	bankApp transfer: 50 from: accountId1 to: accountId2.
+	self assert: (bankApp getBalanceAt: accountId1) equals: 50.
+	self assert: (bankApp getBalanceAt: accountId2) equals: 60.
+	bankApp transfer: 60 from: accountId2 to: accountId1.
+	self assert: (bankApp getBalanceAt: accountId1) equals: 110.
+	self assert: (bankApp getBalanceAt: accountId2) equals: 0.
+	self
+		should: [ bankApp transfer: 10 from: accountId2 to: accountId1. ]
+		raise: HsBankAccountInsufficientFunds
+		withExceptionDo: [ :ex | self assert: ex overdraftLimit equals: 0 ].
+	
+	
+	
+	
+]
+
+{ #category : 'tests' }
 HsBankTestCase >> testAccountWithdrawOverdraftLimitSet [
 	| spaceId bankApp accountId acc1 |
 	spaceId := 'test-baWithdrawOverdraftLimitSet'.

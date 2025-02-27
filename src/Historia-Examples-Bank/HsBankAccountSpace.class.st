@@ -80,7 +80,7 @@ HsBankAccountSpace >> transfer: amount from: fromAccountId to: toAccountId [
 	fromAcc := self accountAt: fromAccountId.
 	toAcc := self accountAt: toAccountId.
 	fromAcc appendBalanceChange: amount negated.
-	toAcc appendBalanceChange: amount negated.
+	toAcc appendBalanceChange: amount.
 	self saveAll: {
 			fromAcc.
 			toAcc }
