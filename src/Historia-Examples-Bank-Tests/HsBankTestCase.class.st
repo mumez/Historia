@@ -148,3 +148,26 @@ HsBankTestCase >> testAccountWithdrawOverdraftLimitSet [
 		withExceptionDo: [ :ex | self assert: ex overdraftLimit equals: 50 ].
 	self assert: (bankApp getBalanceAt: accountId) equals: -50.
 ]
+
+{ #category : 'tests' }
+HsBankTestCase >> testAccountsPropagated [
+	| spaceId bankApp accountId acc1 readBankApp readAcc1 |
+	spaceId := 'test-baAccountsPropagated'.
+	bankApp := HsBankAccountSpace spaceId: spaceId.
+	readBankApp := HsBankAccountSpace spaceId: spaceId.
+	self spaces: { bankApp. readBankApp } do: [
+	bankApp startPushingEvents.
+	accountId := 'acc-1'.
+	bankApp openAccount: accountId name: 'name-1' emailAddress: 'email-1'.
+	acc1 := bankApp accountAt: accountId.
+	bankApp deposit: 100 at: accountId.
+	bankApp withdraw: 90 at: accountId.
+	self assert: (bankApp getBalanceAt: accountId) equals: 10.
+	readBankApp catchup.
+	readAcc1 := readBankApp accountAt: accountId.
+	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
+	bankApp deposit: 100 at: accountId.
+	bankApp eventPusher waitEmptyFor: 100.
+	self assert: (readBankApp getBalanceAt: accountId) equals: 110.
+	].
+]

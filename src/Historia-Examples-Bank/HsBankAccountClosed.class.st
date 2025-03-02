@@ -5,6 +5,11 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'accessing' }
+HsBankAccountClosed class >> typeName [
+	^ #ba:accountClosed
+]
+
 { #category : 'mutating' }
 HsBankAccountClosed >> applyTo: target [
 	target applyClosedTimestamp: self value

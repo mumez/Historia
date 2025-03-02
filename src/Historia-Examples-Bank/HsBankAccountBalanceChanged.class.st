@@ -5,6 +5,11 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'acccessing' }
+HsBankAccountBalanceChanged class >> typeName [
+	^ #ba:balanceChanged
+]
+
 { #category : 'mutating' }
 HsBankAccountBalanceChanged >> applyTo: target [
 	target applyBalanceChange: self value

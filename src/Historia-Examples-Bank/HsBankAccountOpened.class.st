@@ -5,6 +5,11 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'accessing' }
+HsBankAccountOpened class >> typeName [
+	^ #ba:accountOpened
+]
+
 { #category : 'applying' }
 HsBankAccountOpened >> applyTo: targetModel [
 	super applyTo: targetModel.
