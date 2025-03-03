@@ -129,6 +129,11 @@ HsModel >> notify: notificationKind using: aBlock [
 	self addPendingEvent: noti
 ]
 
+{ #category : 'notifying' }
+HsModel >> notify: notificationSymbol withArguments: notificationArgs [
+	self notify: notificationSymbol using: [:noti | noti arguments: notificationArgs asDictionary ]
+]
+
 { #category : 'accessing' }
 HsModel >> pendingEvents [
 

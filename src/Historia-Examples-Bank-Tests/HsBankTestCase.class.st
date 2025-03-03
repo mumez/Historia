@@ -163,11 +163,49 @@ HsBankTestCase >> testAccountsPropagated [
 	bankApp deposit: 100 at: accountId.
 	bankApp withdraw: 90 at: accountId.
 	self assert: (bankApp getBalanceAt: accountId) equals: 10.
+	bankApp eventPusher waitEmptyFor: 100.
 	readBankApp catchup.
 	readAcc1 := readBankApp accountAt: accountId.
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
 	bankApp eventPusher waitEmptyFor: 100.
 	self assert: (readBankApp getBalanceAt: accountId) equals: 110.
+	].
+]
+
+{ #category : 'tests' }
+HsBankTestCase >> testAccountsTransferNotified [
+	| spaceId bankApp accountId1 acc1 accountId2 acc2 notifiedApp events transferedNotices transferedNotice |
+	spaceId := 'test-baTransferNotified'.
+	bankApp := HsBankAccountSpace spaceId: spaceId.
+	notifiedApp := HsAnnouncingModelEventSink spaceId: spaceId.
+	events := OrderedCollection new.
+	transferedNotices := OrderedCollection new.
+	notifiedApp 
+		eventAnnouncedDo: [:ann | events add: ann event];
+		notificationAnnouncedDo: [:ann | ann event kind = #tranferedTo ifTrue: [transferedNotices add: ann event arguments]].
+	self spaces: { bankApp. notifiedApp } do: [
+	bankApp startPushingEvents.
+	accountId1 := 'acc-1'.
+	bankApp openAccount: accountId1 name: 'name-1' emailAddress: 'email-1'.
+	accountId2 := 'acc-2'.
+	bankApp openAccount: accountId2 name: 'name-2' emailAddress: 'email-2'.
+	acc1 := bankApp accountAt: accountId1.
+	acc2 := bankApp accountAt: accountId2.
+	bankApp deposit: 100 at: accountId1.
+	bankApp deposit: 10 at: accountId2.
+	bankApp eventPusher waitEmptyFor: 100.
+	notifiedApp catchup.
+	self assert: (notifiedApp modelAt: accountId1) balance equals: 100.
+	bankApp transfer: 50 from: accountId1 to: accountId2.
+	bankApp eventPusher waitEmptyFor: 100.
+	self assert: (notifiedApp modelAt: accountId2) balance equals: 60.
+	self assert: events size equals: 6.
+	self assert: events last targetId equals: 'acc-2'.
+	self assert: (events last  argsAt: 'value') equals: 50.	
+	self assert: transferedNotices size equals: 1.
+	transferedNotice := transferedNotices first.
+	self assert: (transferedNotice at: 'from') equals: 'acc-1'.
+	self assert: (transferedNotice at: 'amount') equals: 50.
 	].
 ]

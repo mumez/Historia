@@ -81,6 +81,7 @@ HsBankAccountSpace >> transfer: amount from: fromAccountId to: toAccountId [
 	toAcc := self accountAt: toAccountId.
 	fromAcc appendBalanceChange: amount negated.
 	toAcc appendBalanceChange: amount.
+	toAcc notify: #tranferedTo withArguments: {#from -> fromAccountId. #amount -> amount}.
 	self saveAll: {
 			fromAcc.
 			toAcc }
