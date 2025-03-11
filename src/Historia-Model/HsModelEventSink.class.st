@@ -222,9 +222,15 @@ HsModelEventSink >> releaseStorages [
 	self snapshotStorage destroy
 ]
 
-{ #category : 'initializing' }
+{ #category : 'replaying' }
 HsModelEventSink >> replayFrom: fromEventVersionId [
 	(self eventJournalStorage replayableEventsFrom: fromEventVersionId)
+		do: [ :each | self execute: each ]
+]
+
+{ #category : 'replaying' }
+HsModelEventSink >> replayFrom: fromEventVersionId to: toEventVersionId [
+	(self eventJournalStorage replayableEventsFrom: fromEventVersionId to: toEventVersionId)
 		do: [ :each | self execute: each ]
 ]
 
@@ -243,6 +249,13 @@ HsModelEventSink >> settings: anObject [
 HsModelEventSink >> setupFrom: snapshotVersion [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion.
+	self eventPuller startFrom: self lastExecutedVersion
+]
+
+{ #category : 'initializing' }
+HsModelEventSink >> setupFrom: snapshotVersion to: toEventVersionId [
+	self loadSnapshot: snapshotVersion.
+	self replayFrom: snapshotVersion to: toEventVersionId.
 	self eventPuller startFrom: self lastExecutedVersion
 ]
 
