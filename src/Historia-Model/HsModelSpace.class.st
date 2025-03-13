@@ -60,12 +60,12 @@ HsModelSpace >> saveSnapshot: snapshotVersion [
 	^ self snapshotStorage snapshotAt: snapshotVersion put: self models
 ]
 
-{ #category : 'actions' }
+{ #category : 'pushing-events' }
 HsModelSpace >> startPushingEvents [
 	self eventPusher start
 ]
 
-{ #category : 'actions' }
+{ #category : 'pushing-events' }
 HsModelSpace >> stopPushingEvents [
 	self eventPusher stop
 ]

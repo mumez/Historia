@@ -249,14 +249,14 @@ HsModelEventSink >> settings: anObject [
 HsModelEventSink >> setupFrom: snapshotVersion [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion.
-	self eventPuller startFrom: self lastExecutedVersion
+	self startPullingEventsFromLastExecuted
 ]
 
 { #category : 'initializing' }
 HsModelEventSink >> setupFrom: snapshotVersion to: toEventVersionId [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion to: toEventVersionId.
-	self eventPuller startFrom: self lastExecutedVersion
+	self startPullingEventsFromLastExecuted
 ]
 
 { #category : 'events' }
@@ -308,4 +308,19 @@ HsModelEventSink >> spaceId [
 HsModelEventSink >> spaceId: anObject [
 
 	spaceId := anObject
+]
+
+{ #category : 'pulling-events' }
+HsModelEventSink >> startPullingEventsFrom: lastEventVersion [
+	self eventPuller startFrom: lastEventVersion
+]
+
+{ #category : 'pulling-events' }
+HsModelEventSink >> startPullingEventsFromLastExecuted [
+	self startPullingEventsFrom: self lastExecutedVersion
+]
+
+{ #category : 'pulling-events' }
+HsModelEventSink >> stopPullingEvents [
+	self eventPuller stop
 ]

@@ -36,3 +36,33 @@ HsSnapshotStorageTestCase >> testSaveAndLoad [
 	]
 	
 ]
+
+{ #category : 'tests' }
+HsSnapshotStorageTestCase >> testSnapshotVersions [
+	| spaceId versions models modelSpace snapStorage versionString olderVersionString |
+	spaceId := 'hs-ssSnapshotVersions'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
+	models := {#num -> 0} asDictionary.
+	modelSpace models: models.
+	1 to: 20 do: [ :idx |
+		models at: #num put: idx.
+		modelSpace saveSnapshot: (RsStreamMessageId mainId: idx * 100 subId: idx).
+	].
+	snapStorage := modelSpace snapshotStorage.
+	snapStorage settings snapshotVersionsTakeChunkSize: 7.
+	versions := snapStorage listSnapshotVersions.
+	self assert: versions size equals: 20.
+	
+	versionString := '1500-15'.
+	self assert: (snapStorage existsRecentSnapshotVersion: versionString).
+	
+	olderVersionString := '1000-10'.
+	self deny: (snapStorage existsRecentSnapshotVersion: olderVersionString).
+	
+	self assert: (snapStorage recentSnapshotVersionFrom: '1300-15') equals: '1300-13'.
+	self assert: (snapStorage recentSnapshotVersionFrom: '200-2') equals: '100-1'.
+	
+	]
+	
+]

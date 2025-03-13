@@ -166,3 +166,13 @@ HsSettings >> snapshotVersionListPrefix [
 HsSettings >> snapshotVersionListPrefix: prefixName [
 	^ self at: #snapshotVersionListPrefix put: prefixName
 ]
+
+{ #category : 'accessing' }
+HsSettings >> snapshotVersionsTakeChunkSize [
+	^ self at: #snapshotVersionsTakeChunkSize ifAbsentPut: [10]
+]
+
+{ #category : 'accessing' }
+HsSettings >> snapshotVersionsTakeChunkSize: chunkSize [
+	^ self at: #snapshotVersionsTakeChunkSize put: chunkSize
+]
