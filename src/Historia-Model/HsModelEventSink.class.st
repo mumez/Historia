@@ -101,6 +101,13 @@ HsModelEventSink >> generateOriginatorId [
 	^ UUID new asString36
 ]
 
+{ #category : 'time traveling' }
+HsModelEventSink >> goTo: toEventVersionId [
+	| snapshotVersion |
+	snapshotVersion := (self snapshotStorage recentSnapshotVersionFrom: toEventVersionId) ifNil: [0].
+	self loadSnapshot: snapshotVersion replayTo: toEventVersionId
+]
+
 { #category : 'error handling' }
 HsModelEventSink >> handleExecutionError: anException on: anEvent [
 	self logger error: { anException. anEvent }
@@ -139,6 +146,12 @@ HsModelEventSink >> loadSnapshot: snapshotVersion [
 	snapshotVersion ifNil: [ ^ self ].
 	snapArray := self snapshotStorage snapshotAt: snapshotVersion.
 	self models: snapArray last.
+]
+
+{ #category : 'snapshotting' }
+HsModelEventSink >> loadSnapshot: snapshotVersion replayTo: toEventVersionId [
+	self loadSnapshot: snapshotVersion.
+	self replayFrom: snapshotVersion to: toEventVersionId
 ]
 
 { #category : 'accessing' }
@@ -249,13 +262,6 @@ HsModelEventSink >> settings: anObject [
 HsModelEventSink >> setupFrom: snapshotVersion [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion.
-	self startPullingEventsFromLastExecuted
-]
-
-{ #category : 'initializing' }
-HsModelEventSink >> setupFrom: snapshotVersion to: toEventVersionId [
-	self loadSnapshot: snapshotVersion.
-	self replayFrom: snapshotVersion to: toEventVersionId.
 	self startPullingEventsFromLastExecuted
 ]
 
