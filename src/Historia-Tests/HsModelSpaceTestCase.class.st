@@ -12,7 +12,7 @@ HsModelSpaceTestCase >> testBasicCatchup [
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
-	modelSpace putModel: (HsValueModel id: 'val-1').
+	modelSpace putModelOf: HsValueModel id: 'val-1'. 
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
 	1 to: 10 do: [ :each | 
@@ -218,6 +218,37 @@ HsModelSpaceTestCase >> testExecuteOn [
 	addB executeOn: modelSpace.
 	
 	self assert: (modelSpace modelAt: 'ord1') asArray equals: #(#a #b).
+]
+
+{ #category : 'tests' }
+HsModelSpaceTestCase >> testGoTo [
+	| spaceId modelSpace modelSpaceForSnapshot vmodel modelSpace2 snapshotVersions events |
+	spaceId := 'test-msGoTo'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpaceForSnapshot := (HsModelSpace spaceId: spaceId) snapshotInterval: 3.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpaceForSnapshot. modelSpace2 } do: [
+	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'.
+	vmodel := modelSpace modelAt: 'vals-1'.
+	modelSpace eventPusher start.
+	modelSpaceForSnapshot catchup.
+	1 to: 10 do: [ :idx |
+		vmodel add: idx.
+		vmodel save.
+	].
+	self assert: (modelSpace eventPusher waitEmptyFor: 100).
+	self sleep: 200.
+	snapshotVersions := modelSpace snapshotStorage listSnapshotVersions.
+	self assert: snapshotVersions size equals: 3.
+	events := modelSpace eventJournalStorage allEvents. 
+	self assert: (modelSpaceForSnapshot modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8 9 10).
+	self assert: events size equals: 11.
+	self assert: (modelSpace2 modelAt: 'vals-1') equals: nil.
+	modelSpace2 goTo: (events at: 9) eventId.
+	self assert: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8).
+	modelSpace2 goTo: (events at: 8) eventId.
+	self assert: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7).
+	]
 ]
 
 { #category : 'tests' }

@@ -60,6 +60,11 @@ HsModelSpace >> saveSnapshot: snapshotVersion [
 	^ self snapshotStorage snapshotAt: snapshotVersion put: self models
 ]
 
+{ #category : 'snapshotting' }
+HsModelSpace >> snapshotInterval: anInteger [
+	self settings snapshotInterval: anInteger 
+]
+
 { #category : 'pushing-events' }
 HsModelSpace >> startPushingEvents [
 	self eventPusher start

@@ -105,6 +105,7 @@ HsModelEventSink >> generateOriginatorId [
 HsModelEventSink >> goTo: toEventVersionId [
 	| snapshotVersion |
 	snapshotVersion := (self snapshotStorage recentSnapshotVersionFrom: toEventVersionId) ifNil: [0].
+	self lastExecutedVersion: nil.
 	self loadSnapshot: snapshotVersion replayTo: toEventVersionId
 ]
 
