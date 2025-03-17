@@ -241,13 +241,24 @@ HsModelSpaceTestCase >> testGoTo [
 	snapshotVersions := modelSpace snapshotStorage listSnapshotVersions.
 	self assert: snapshotVersions size equals: 3.
 	events := modelSpace eventJournalStorage allEvents. 
-	self assert: (modelSpaceForSnapshot modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8 9 10).
+	self assertCollection: (modelSpaceForSnapshot modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8 9 10).
 	self assert: events size equals: 11.
 	self assert: (modelSpace2 modelAt: 'vals-1') equals: nil.
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: nil.
 	modelSpace2 goTo: (events at: 9) eventId.
-	self assert: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8).
-	modelSpace2 goTo: (events at: 8) eventId.
-	self assert: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7).
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8).
+	modelSpace2 goTo: (events at: 7) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6).
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: snapshotVersions second.
+	modelSpace2 goTo: (events at: 4) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3).
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: snapshotVersions first.
+	modelSpace2 goTo: (events at: 2) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1).
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: nil.
+	modelSpace2 goTo: (events at: 1) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #().
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: nil.
 	]
 ]
 

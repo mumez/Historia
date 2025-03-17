@@ -4,6 +4,7 @@ Class {
 	#instVars : [
 		'eventPuller',
 		'lastExecutedVersion',
+		'lastLoadedSnapshotVersion',
 		'models',
 		'settings',
 		'spaceId',
@@ -104,7 +105,7 @@ HsModelEventSink >> generateOriginatorId [
 { #category : 'time traveling' }
 HsModelEventSink >> goTo: toEventVersionId [
 	| snapshotVersion |
-	snapshotVersion := (self snapshotStorage recentSnapshotVersionFrom: toEventVersionId) ifNil: [0].
+	snapshotVersion := (self snapshotStorage recentSnapshotVersionFrom: toEventVersionId) ifNil: [].
 	self lastExecutedVersion: nil.
 	self loadSnapshot: snapshotVersion replayTo: toEventVersionId
 ]
@@ -137,6 +138,18 @@ HsModelEventSink >> lastExecutedVersion: anObject [
 ]
 
 { #category : 'accessing' }
+HsModelEventSink >> lastLoadedSnapshotVersion [
+
+	^ lastLoadedSnapshotVersion
+]
+
+{ #category : 'accessing' }
+HsModelEventSink >> lastLoadedSnapshotVersion: anObject [
+
+	lastLoadedSnapshotVersion := anObject
+]
+
+{ #category : 'accessing' }
 HsModelEventSink >> lastSnapshotVersion [
 	^ self snapshotStorage lastSnapshotVersion
 ]
@@ -144,15 +157,22 @@ HsModelEventSink >> lastSnapshotVersion [
 { #category : 'snapshotting' }
 HsModelEventSink >> loadSnapshot: snapshotVersion [
 	| snapArray |
-	snapshotVersion ifNil: [ ^ self ].
+	snapshotVersion ifNil: [ ^ false ].
 	snapArray := self snapshotStorage snapshotAt: snapshotVersion.
+	self lastLoadedSnapshotVersion: snapArray first.
 	self models: snapArray last.
+	^ true
 ]
 
 { #category : 'snapshotting' }
 HsModelEventSink >> loadSnapshot: snapshotVersion replayTo: toEventVersionId [
-	self loadSnapshot: snapshotVersion.
-	self replayFrom: snapshotVersion to: toEventVersionId
+	| fromVersion |
+	fromVersion := (self loadSnapshot: snapshotVersion)
+		ifTrue: [snapshotVersion]
+		ifFalse: [
+			self lastLoadedSnapshotVersion: nil.
+			0].
+	 self replayFrom: fromVersion to: toEventVersionId 
 ]
 
 { #category : 'accessing' }
