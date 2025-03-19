@@ -36,6 +36,12 @@ HsModel >> addPendingEvent: anEvent [
 	self pendingEvents add: anEvent
 ]
 
+{ #category : 'mutating' }
+HsModel >> basicMutate: anEvent [
+	anEvent applyTo: self.
+	self addPendingEvent: anEvent
+]
+
 { #category : 'releasing' }
 HsModel >> delete [
 	self mutate: HsModelDeleted using: [ :ev | ev modelId: self id ]
@@ -70,12 +76,18 @@ HsModel >> id: anObject [
 ]
 
 { #category : 'callback' }
-HsModel >> instanceCreated: aModelSpace [
+HsModel >> instanceCreated: aModelSpace initializing: initializerBlock [
 	self modelSpace: aModelSpace.
-	self mutate: HsModelCreated using: [ :ev |
+	self mutate: self modelCreatedEventClass using: [ :ev |
 		ev
 			className: self className;
-			modelId: self id ]
+			modelId: self id.
+		initializerBlock value: ev ]
+]
+
+{ #category : 'factory' }
+HsModel >> modelCreatedEventClass [
+	^ HsModelCreated
 ]
 
 { #category : 'accessing' }
@@ -91,9 +103,8 @@ HsModel >> modelSpace: anObject [
 ]
 
 { #category : 'mutating' }
-HsModel >> mutate: anEvent [
-	anEvent applyTo: self.
-	self addPendingEvent: anEvent
+HsModel >> mutate: anEventClass [
+	self mutate: anEventClass using: [:ev |]
 ]
 
 { #category : 'mutating' }
@@ -101,7 +112,7 @@ HsModel >> mutate: anEventClass using: mutatorBlock [
 	| ev |
 	ev := anEventClass originatorId: self modelSpace originatorId targetId: self id.
 	mutatorBlock value: ev.
-	self mutate: ev
+	self basicMutate: ev
 ]
 
 { #category : 'notifying' }
@@ -116,6 +127,11 @@ HsModel >> notify: notificationKind using: aBlock [
 	noti kind: notificationKind.
 	aBlock value: noti.
 	self addPendingEvent: noti
+]
+
+{ #category : 'notifying' }
+HsModel >> notify: notificationSymbol withArguments: notificationArgs [
+	self notify: notificationSymbol using: [:noti | noti arguments: notificationArgs asDictionary ]
 ]
 
 { #category : 'accessing' }

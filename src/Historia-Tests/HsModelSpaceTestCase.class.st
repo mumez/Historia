@@ -10,7 +10,9 @@ HsModelSpaceTestCase >> testBasicCatchup [
 	| spaceId modelSpace vmodel modelSpace2 |
 	spaceId := 'test-stBasicCatchup'.
 	modelSpace := HsModelSpace spaceId: spaceId.
-	modelSpace putModel: (HsValueModel id: 'val-1').
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
+	modelSpace putModelOf: HsValueModel id: 'val-1'. 
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
 	1 to: 10 do: [ :each | 
@@ -21,7 +23,6 @@ HsModelSpaceTestCase >> testBasicCatchup [
 	
 	self assert: modelSpace snapshotStorage listSnapshotVersions size isZero.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	self assert: (modelSpace2 modelAt: 'val-1') value isNil.
 	modelSpace2 snapshotTaker settings snapshotInterval: 6.
@@ -30,9 +31,7 @@ HsModelSpaceTestCase >> testBasicCatchup [
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 10.
 	self assert: modelSpace2 snapshotStorage listSnapshotVersions size equals: 1.
 	self assert: modelSpace2 lastExecutedVersion > modelSpace2 lastSnapshotVersion.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -40,6 +39,9 @@ HsModelSpaceTestCase >> testCatchupMoreEvents [
 	| spaceId modelSpace vmodel modelSpace2 modelSpace3 |
 	spaceId := 'test-stCatchupMoreEvents'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	modelSpace3 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -50,7 +52,6 @@ HsModelSpaceTestCase >> testCatchupMoreEvents [
 	self assert: (modelSpace eventPusher waitEmptyFor: 500).
 	self assert: modelSpace snapshotStorage listSnapshotVersions size isZero.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	self assert: (modelSpace2 modelAt: 'val-1') value isNil.
 	modelSpace2 snapshotTaker settings snapshotInterval: 6.
@@ -66,7 +67,6 @@ HsModelSpaceTestCase >> testCatchupMoreEvents [
 	].
 	self sleep: 100.
 	
-	modelSpace3 := HsModelSpace spaceId: spaceId.
 	modelSpace3 putModel: (HsValueModel id: 'val-1').
 	self assert: (modelSpace3 modelAt: 'val-1') value isNil.
 	modelSpace3 catchup.
@@ -77,10 +77,7 @@ HsModelSpaceTestCase >> testCatchupMoreEvents [
 	self assert: modelSpace3 snapshotTaker eventCount equals: 2. "playbacks are 19, 20"
 	
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 20.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
-	modelSpace3 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -88,6 +85,8 @@ HsModelSpaceTestCase >> testCreateDeleteModel [
 	| spaceId modelSpace vmodel modelSpace2 values2 |
 	spaceId := 'test-msCreateDeleteModel'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'. 
 	vmodel := modelSpace modelAt: 'vals-1'.
 	1 to: 5 do: [ :idx | vmodel add: idx].
@@ -95,7 +94,6 @@ HsModelSpaceTestCase >> testCreateDeleteModel [
 	modelSpace eventPusher start.
 	self sleep: 50.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
 	modelSpace2 catchup.
 	self sleep: 50.
 	values2 := modelSpace2 modelAt: 'vals-1'.
@@ -107,9 +105,7 @@ HsModelSpaceTestCase >> testCreateDeleteModel [
 	
 	values2 := modelSpace2 modelAt: 'vals-1'.
 	self assert: values2 isNil.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -117,6 +113,8 @@ HsModelSpaceTestCase >> testCreateModel [
 	| spaceId modelSpace vmodel modelSpace2 values2 |
 	spaceId := 'test-msCreateModel'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'. 
 	vmodel := modelSpace modelAt: 'vals-1'.
 	1 to: 5 do: [ :idx | vmodel add: idx].
@@ -124,15 +122,13 @@ HsModelSpaceTestCase >> testCreateModel [
 	modelSpace eventPusher start.
 	self sleep: 50.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
+	
 	modelSpace2 catchup.
 	self sleep: 50.
 	values2 := modelSpace2 modelAt: 'vals-1'.
 	self assert: values2 size equals: 5.
 	self assertCollection: values2 asArray equals: vmodel values asArray.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -140,6 +136,7 @@ HsModelSpaceTestCase >> testEventSave [
 
 	| modelSpace vmodel eventJournal events event |
 	modelSpace := HsModelSpace spaceId: 'test-msEventSave'.
+	self spaces: { modelSpace } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 
@@ -161,9 +158,7 @@ HsModelSpaceTestCase >> testEventSave [
 	event := events first.
 	self assert: event class equals: HsValueChanged.
 	self assert: event value equals: 111.
-	
-	modelSpace eventPusher destroy.
-	
+	]
 ]
 
 { #category : 'tests' }
@@ -171,6 +166,7 @@ HsModelSpaceTestCase >> testEventSaveWithAutoPush [
 
 	| modelSpace vmodel eventJournal events event |
 	modelSpace := HsModelSpace spaceId: 'test-msEventSaveWithAutoPush'.
+	self spaces: { modelSpace } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 
@@ -197,9 +193,7 @@ HsModelSpaceTestCase >> testEventSaveWithAutoPush [
 	event := events second.
 	self assert: event class equals: HsValueChanged.
 	self assert: event value equals: 222.
-	
-	modelSpace eventPusher destroy.
-	
+	]
 ]
 
 { #category : 'tests' }
@@ -224,6 +218,86 @@ HsModelSpaceTestCase >> testExecuteOn [
 	addB executeOn: modelSpace.
 	
 	self assert: (modelSpace modelAt: 'ord1') asArray equals: #(#a #b).
+]
+
+{ #category : 'tests' }
+HsModelSpaceTestCase >> testGoTo [
+	| spaceId modelSpace modelSpaceForSnapshot vmodel modelSpace2 snapshotVersions events |
+	spaceId := 'test-msGoTo'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpaceForSnapshot := (HsModelSpace spaceId: spaceId) snapshotInterval: 3.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpaceForSnapshot. modelSpace2 } do: [
+	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'.
+	vmodel := modelSpace modelAt: 'vals-1'.
+	modelSpace eventPusher start.
+	modelSpaceForSnapshot catchup.
+	1 to: 10 do: [ :idx |
+		vmodel add: idx.
+		vmodel save.
+	].
+	self assert: (modelSpace eventPusher waitEmptyFor: 100).
+	self sleep: 200.
+	snapshotVersions := modelSpace snapshotStorage listSnapshotVersions.
+	self assert: snapshotVersions size equals: 3.
+	events := modelSpace eventJournalStorage allEvents. 
+	self assertCollection: (modelSpaceForSnapshot modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8 9 10).
+	self assert: events size equals: 11.
+	self assert: (modelSpace2 modelAt: 'vals-1') equals: nil.
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: nil.
+	modelSpace2 goTo: (events at: 9) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6 7 8).
+	modelSpace2 goTo: (events at: 7) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3 4 5 6).
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: snapshotVersions second.
+	modelSpace2 goTo: (events at: 4) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1 2 3).
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: snapshotVersions first.
+	modelSpace2 goTo: (events at: 2) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #(1).
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: nil.
+	modelSpace2 goTo: (events at: 1) eventId.
+	self assertCollection: (modelSpace2 modelAt: 'vals-1') values asArray equals: #().
+	self assert: modelSpace2 lastLoadedSnapshotVersion equals: nil.
+	]
+]
+
+{ #category : 'tests' }
+HsModelSpaceTestCase >> testLoadSnapshotReplayTo [
+	| spaceId modelSpace vmodel version1 snapshotVersion version2 modelSpace2 |
+	spaceId := 'test-msLoadSnapshotReplayTo'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
+	modelSpace putModel: (HsValueModel id: 'val-1').
+	vmodel := modelSpace modelAt: 'val-1'.
+	modelSpace eventPusher start.
+	1 to: 4 do: [ :idx |
+		vmodel value: idx.
+	].
+	vmodel save.
+	self assert: (modelSpace eventPusher waitEmptyFor: 100).
+	version1 := modelSpace lastEventVersion.
+	modelSpace saveSnapshot: version1.
+	snapshotVersion := modelSpace lastSnapshotVersion.
+	
+	5 to: 8 do: [ :idx |
+		vmodel value: idx.
+	].
+	vmodel save.
+	self assert: (modelSpace eventPusher waitEmptyFor: 100).
+	version2 := modelSpace lastEventVersion.
+	9 to: 12 do: [ :idx |
+		vmodel value: idx.
+	].
+	vmodel save.
+	self assert: (modelSpace eventPusher waitEmptyFor: 100).
+	self assert: modelSpace snapshotStorage listSnapshotVersions size equals: 1.
+	self assert: (modelSpace2 modelAt: 'val-1') equals: nil.
+	modelSpace2 loadSnapshot: snapshotVersion replayTo: version2.
+	self assert: (modelSpace2 modelAt: 'val-1') value equals: 8.
+	self assert: modelSpace2 lastExecutedVersion > snapshotVersion.
+	]
 ]
 
 { #category : 'tests' }
@@ -255,6 +329,8 @@ HsModelSpaceTestCase >> testSetupFailOnSameModelSpace [
 	| spaceId modelSpace vmodel snapshotVersion modelSpace2 |
 	spaceId := 'test-msSetupFailOnSameModelSpace'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -271,16 +347,13 @@ HsModelSpaceTestCase >> testSetupFailOnSameModelSpace [
 	self assert: modelSpace snapshotStorage listSnapshotVersions size equals: 1.
 	self assert: modelSpace lastEventVersion > snapshotVersion.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
 	modelSpace2 originatorId: modelSpace originatorId.
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	self assert: (modelSpace2 modelAt: 'val-1') value isNil.
 	modelSpace2 setupFrom: snapshotVersion.
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 4.
 	self assert: modelSpace2 lastExecutedVersion equals: nil.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -288,6 +361,8 @@ HsModelSpaceTestCase >> testSetupFrom [
 	| spaceId modelSpace vmodel snapshotVersion modelSpace2 |
 	spaceId := 'test-msSetupFrom'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -303,14 +378,12 @@ HsModelSpaceTestCase >> testSetupFrom [
 	snapshotVersion := modelSpace lastSnapshotVersion.
 	self assert: modelSpace snapshotStorage listSnapshotVersions size equals: 1.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
+	
 	self assert: (modelSpace2 modelAt: 'val-1') equals: nil.
 	modelSpace2 setupFrom: snapshotVersion.
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 5.
 	self assert: modelSpace2 lastExecutedVersion > snapshotVersion.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -318,6 +391,8 @@ HsModelSpaceTestCase >> testSetupFromLastSnapshot [
 	| spaceId modelSpace vmodel snapshotVersion modelSpace2 |
 	spaceId := 'test-stSetupFromLastSnapshot'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -333,12 +408,9 @@ HsModelSpaceTestCase >> testSetupFromLastSnapshot [
 	
 	self assert: modelSpace snapshotStorage listSnapshotVersions size equals: 3.
 	
-	modelSpace2 := HsModelSpace spaceId: spaceId.
 	self assert: (modelSpace2 modelAt: 'val-1') equals: nil.
 	modelSpace2 setupFrom: snapshotVersion.
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 10.
 	self assert: modelSpace2 lastExecutedVersion > snapshotVersion.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]

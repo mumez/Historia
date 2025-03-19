@@ -60,8 +60,12 @@ HsEventJournalStorage >> eventStream [
 
 { #category : 'actions' }
 HsEventJournalStorage >> eventsFrom: fromMessageId to: toMessageId [
-	^ (self eventStream contentsFrom: fromMessageId to: toMessageId)
-		  collect: [ :entry | HsEvent fromStreamEntry: entry ]
+	| events |
+	events := OrderedCollection new.
+	(self streamIteratorNextFrom: fromMessageId)
+		do: [ :entry | events add: (HsEvent fromStreamEntry: entry) ]
+		whileFalse: [ :ents :ent | ent id > toMessageId ].
+	^ events
 ]
 
 { #category : 'accessing' }
@@ -113,6 +117,17 @@ HsEventJournalStorage >> replayableEventsFrom: possibleFromEventVersion [
 	fromEventVersion := possibleFromEventVersion ifNil: [
 		                    self bootstrapEventVersion ].
 	events := self latestEventsFrom: fromEventVersion.
+	^ events select: [ :c | c isReplayable ]
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> replayableEventsFrom: possibleFromEventVersion to: possibleToEventVersion [
+	| fromEventVersion toEventVersion events |
+	fromEventVersion := possibleFromEventVersion ifNil: [
+		                    self bootstrapEventVersion ].
+	toEventVersion := possibleToEventVersion ifNil: [
+		                    fromEventVersion ].
+	events := self eventsFrom: fromEventVersion to: toEventVersion.
 	^ events select: [ :c | c isReplayable ]
 ]
 

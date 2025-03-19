@@ -125,6 +125,16 @@ HsSettings >> settingsDict: anObject [
 ]
 
 { #category : 'accessing' }
+HsSettings >> shouldAutoStartEventPusher [
+	^ self at: #shouldAutoStartEventPusher ifAbsentPut: [false]
+]
+
+{ #category : 'accessing' }
+HsSettings >> shouldAutoStartEventPusher: aBoolean [
+	^ self at: #shouldAutoStartEventPusher put: aBoolean
+]
+
+{ #category : 'accessing' }
 HsSettings >> snapshotCodec [
 	^ self at: #snapshotCodec ifAbsentPut: [#fuel]
 ]
@@ -155,4 +165,14 @@ HsSettings >> snapshotVersionListPrefix [
 { #category : 'accessing' }
 HsSettings >> snapshotVersionListPrefix: prefixName [
 	^ self at: #snapshotVersionListPrefix put: prefixName
+]
+
+{ #category : 'accessing' }
+HsSettings >> snapshotVersionsTakeChunkSize [
+	^ self at: #snapshotVersionsTakeChunkSize ifAbsentPut: [10]
+]
+
+{ #category : 'accessing' }
+HsSettings >> snapshotVersionsTakeChunkSize: chunkSize [
+	^ self at: #snapshotVersionsTakeChunkSize put: chunkSize
 ]

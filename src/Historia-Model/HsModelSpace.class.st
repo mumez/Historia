@@ -8,6 +8,13 @@ Class {
 	#package : 'Historia-Model'
 }
 
+{ #category : 'defaults' }
+HsModelSpace >> defaultSettings [
+	^ super defaultSettings
+		  shouldAutoStartEventPusher: false;
+		  yourself
+]
+
 { #category : 'accessing' }
 HsModelSpace >> eventPusher [
 
@@ -51,4 +58,19 @@ HsModelSpace >> saveAll: aCollectionOfModel [
 { #category : 'snapshotting' }
 HsModelSpace >> saveSnapshot: snapshotVersion [
 	^ self snapshotStorage snapshotAt: snapshotVersion put: self models
+]
+
+{ #category : 'snapshotting' }
+HsModelSpace >> snapshotInterval: anInteger [
+	self settings snapshotInterval: anInteger 
+]
+
+{ #category : 'pushing-events' }
+HsModelSpace >> startPushingEvents [
+	self eventPusher start
+]
+
+{ #category : 'pushing-events' }
+HsModelSpace >> stopPushingEvents [
+	self eventPusher stop
 ]

@@ -10,6 +10,8 @@ HsAnnouncingModelEventSinkTestCase >> testEventNotifications [
 	| spaceId modelSpace vmodel modelSpace2 announcer events |
 	spaceId := 'test-amesEventNotifications'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -19,7 +21,7 @@ HsAnnouncingModelEventSinkTestCase >> testEventNotifications [
 	].
 	self assert: (modelSpace eventPusher waitEmptyFor: 500).
 	
-	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	announcer := modelSpace2 announcer.
 	events := OrderedCollection new.
@@ -31,9 +33,7 @@ HsAnnouncingModelEventSinkTestCase >> testEventNotifications [
 	self assert: (modelSpace2 modelAt: 'val-1') value equals: 5.
 	self assert: (events allSatisfy: [:each | each typeName asSymbol = HsValueChanged typeName]).
 	self assertCollection: (events collect: [:each | each value]) asArray equals: #(1 2 3 4 5).
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -41,6 +41,8 @@ HsAnnouncingModelEventSinkTestCase >> testNotificationsWithArguments [
 	| spaceId modelSpace vmodel modelSpace2 announcer events afterAll args |
 	spaceId := 'test-amesNotificationsWithArguments'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -50,7 +52,7 @@ HsAnnouncingModelEventSinkTestCase >> testNotificationsWithArguments [
 	vmodel saveNotifying: #allAdded withArguments: {'arg-1' -> 1. 'arg-2' -> 2}.
 	self assert: (modelSpace eventPusher waitEmptyFor: 500).
 	
-	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	announcer := modelSpace2 announcer.
 	events := OrderedCollection new.
@@ -69,9 +71,7 @@ HsAnnouncingModelEventSinkTestCase >> testNotificationsWithArguments [
 	self assertCollection: args keys sorted equals: #('arg-1' 'arg-2').
 	self assert: (args at: 'arg-1') equals: 1.
 	self assert: (args at: 'arg-2') equals: 2.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]
 
 { #category : 'tests' }
@@ -79,6 +79,8 @@ HsAnnouncingModelEventSinkTestCase >> testSimpleNotifications [
 	| spaceId modelSpace vmodel modelSpace2 announcer events afterAll|
 	spaceId := 'test-amesSimpleNotifications'.
 	modelSpace := HsModelSpace spaceId: spaceId.
+	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
@@ -88,7 +90,6 @@ HsAnnouncingModelEventSinkTestCase >> testSimpleNotifications [
 	vmodel saveNotifying: #allAdded.
 	self assert: (modelSpace eventPusher waitEmptyFor: 500).
 	
-	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
 	modelSpace2 putModel: (HsValueModel id: 'val-1').
 	announcer := modelSpace2 announcer.
 	events := OrderedCollection new.
@@ -105,7 +106,5 @@ HsAnnouncingModelEventSinkTestCase >> testSimpleNotifications [
 	self assert: (afterAll size) equals: 1.
 	self assert: (afterAll first) key equals: #allAdded.
 	self assert: (afterAll first) value equals: 5.
-	
-	modelSpace releaseStorages.
-	modelSpace2 releaseStorages.
+	]
 ]

@@ -53,7 +53,7 @@ HsSnapshotStorage >> eventStream [
 { #category : 'versions' }
 HsSnapshotStorage >> existsRecentSnapshotVersion: versionString [
 	| position |
-	position := self stick endpoint lPosBackward: self versionsListName value: versionString maxlen: 10.
+	position := self stick endpoint lPosBackward: self versionsListName value: versionString maxlen: self settings snapshotVersionsTakeChunkSize.
 	^ position notNil
 ]
 
@@ -92,6 +92,25 @@ HsSnapshotStorage >> materializeSnapshotFromEntry: aStreamEntry [
 	^ {
 		  aStreamEntry id.
 		  domainModels }
+]
+
+{ #category : 'versions' }
+HsSnapshotStorage >> recentSnapshotVersionFrom: version [
+	| startIdx chunkSize |
+	startIdx := 1.
+	chunkSize := self settings snapshotVersionsTakeChunkSize.
+	[ | chunk found |
+	chunk := self stick endpoint
+		         lRange: self versionsListName
+		         start: (startIdx + chunkSize - 1) negated
+		         end: startIdx negated.
+	found := chunk reversed
+		         detect: [ :each | each asStreamMessageId < version asStreamMessageId ]
+		         ifNone: [  ].
+	found ifNotNil: [ ^ found ].
+	startIdx := startIdx + chunkSize.
+	chunk size = chunkSize ] whileTrue.
+	^ nil
 ]
 
 { #category : 'serialize/materialize' }

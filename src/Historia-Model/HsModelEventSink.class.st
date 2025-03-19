@@ -4,6 +4,7 @@ Class {
 	#instVars : [
 		'eventPuller',
 		'lastExecutedVersion',
+		'lastLoadedSnapshotVersion',
 		'models',
 		'settings',
 		'spaceId',
@@ -28,6 +29,11 @@ HsModelEventSink >> catchup [
 	| snapVersion |
 	snapVersion := self lastSnapshotVersion.
 	self setupFrom: snapVersion.
+]
+
+{ #category : 'defaults' }
+HsModelEventSink >> defaultSettings [
+	^ HsSettings defaultCopied
 ]
 
 { #category : 'actions-model' }
@@ -96,6 +102,14 @@ HsModelEventSink >> generateOriginatorId [
 	^ UUID new asString36
 ]
 
+{ #category : 'time traveling' }
+HsModelEventSink >> goTo: toEventVersionId [
+	| snapshotVersion |
+	snapshotVersion := (self snapshotStorage recentSnapshotVersionFrom: toEventVersionId) ifNil: [].
+	self lastExecutedVersion: nil.
+	self loadSnapshot: snapshotVersion replayTo: toEventVersionId
+]
+
 { #category : 'error handling' }
 HsModelEventSink >> handleExecutionError: anException on: anEvent [
 	self logger error: { anException. anEvent }
@@ -124,6 +138,18 @@ HsModelEventSink >> lastExecutedVersion: anObject [
 ]
 
 { #category : 'accessing' }
+HsModelEventSink >> lastLoadedSnapshotVersion [
+
+	^ lastLoadedSnapshotVersion
+]
+
+{ #category : 'accessing' }
+HsModelEventSink >> lastLoadedSnapshotVersion: anObject [
+
+	lastLoadedSnapshotVersion := anObject
+]
+
+{ #category : 'accessing' }
 HsModelEventSink >> lastSnapshotVersion [
 	^ self snapshotStorage lastSnapshotVersion
 ]
@@ -131,9 +157,22 @@ HsModelEventSink >> lastSnapshotVersion [
 { #category : 'snapshotting' }
 HsModelEventSink >> loadSnapshot: snapshotVersion [
 	| snapArray |
-	snapshotVersion ifNil: [ ^ self ].
+	snapshotVersion ifNil: [ ^ false ].
 	snapArray := self snapshotStorage snapshotAt: snapshotVersion.
+	self lastLoadedSnapshotVersion: snapArray first.
 	self models: snapArray last.
+	^ true
+]
+
+{ #category : 'snapshotting' }
+HsModelEventSink >> loadSnapshot: snapshotVersion replayTo: toEventVersionId [
+	| fromVersion |
+	fromVersion := (self loadSnapshot: snapshotVersion)
+		ifTrue: [snapshotVersion]
+		ifFalse: [
+			self lastLoadedSnapshotVersion: nil.
+			0].
+	 self replayFrom: fromVersion to: toEventVersionId 
 ]
 
 { #category : 'accessing' }
@@ -200,9 +239,14 @@ HsModelEventSink >> putModel: aModel [
 
 { #category : 'actions-model' }
 HsModelEventSink >> putModelOf: modelClass id: modelId [ 
+	^ self putModelOf: modelClass id: modelId initializing: [:model | ]
+]
+
+{ #category : 'actions-model' }
+HsModelEventSink >> putModelOf: modelClass id: modelId initializing: initializerBlock [
 	| newModel |
-	newModel := (modelClass id: modelId).
-	newModel instanceCreated: self.
+	newModel := modelClass id: modelId.
+	newModel instanceCreated: self initializing: initializerBlock.
 	^ newModel
 ]
 
@@ -212,15 +256,21 @@ HsModelEventSink >> releaseStorages [
 	self snapshotStorage destroy
 ]
 
-{ #category : 'initializing' }
+{ #category : 'replaying' }
 HsModelEventSink >> replayFrom: fromEventVersionId [
 	(self eventJournalStorage replayableEventsFrom: fromEventVersionId)
 		do: [ :each | self execute: each ]
 ]
 
+{ #category : 'replaying' }
+HsModelEventSink >> replayFrom: fromEventVersionId to: toEventVersionId [
+	(self eventJournalStorage replayableEventsFrom: fromEventVersionId to: toEventVersionId)
+		do: [ :each | self execute: each ]
+]
+
 { #category : 'accessing' }
 HsModelEventSink >> settings [
-	^ settings ifNil: [ settings := HsSettings defaultCopied ]
+	^ settings ifNil: [ settings := self defaultSettings ]
 ]
 
 { #category : 'accessing' }
@@ -233,7 +283,7 @@ HsModelEventSink >> settings: anObject [
 HsModelEventSink >> setupFrom: snapshotVersion [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion.
-	self eventPuller startFrom: self lastExecutedVersion
+	self startPullingEventsFromLastExecuted
 ]
 
 { #category : 'events' }
@@ -285,4 +335,19 @@ HsModelEventSink >> spaceId [
 HsModelEventSink >> spaceId: anObject [
 
 	spaceId := anObject
+]
+
+{ #category : 'pulling-events' }
+HsModelEventSink >> startPullingEventsFrom: lastEventVersion [
+	self eventPuller startFrom: lastEventVersion
+]
+
+{ #category : 'pulling-events' }
+HsModelEventSink >> startPullingEventsFromLastExecuted [
+	self startPullingEventsFrom: self lastExecutedVersion
+]
+
+{ #category : 'pulling-events' }
+HsModelEventSink >> stopPullingEvents [
+	self eventPuller stop
 ]
