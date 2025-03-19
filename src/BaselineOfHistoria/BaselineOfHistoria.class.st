@@ -11,15 +11,15 @@ BaselineOfHistoria >> baseline: spec [
 	<baseline>
 	spec for: #pharo do: [
 		self redistick: spec.
-		spec package: 'Historia-Core'.
+		spec package: 'Historia-Core' with: [spec requires: #('RediStick')].
 		spec package: 'Historia-Codec'.
-		spec package: 'Historia-Event'.
-		spec package: 'Historia-Event-Processor'.
-		spec package: 'Historia-Model'.
-		spec package: 'Historia-Storage'.
-		spec package: 'Historia-Tests'.
-		spec package: 'Historia-Examples-Bank'.
-		spec package: 'Historia-Examples-Bank-Tests'.
+		spec package: 'Historia-Event' with: [spec requires: #('Historia-Codec' 'Historia-Core')].
+		spec package: 'Historia-Event-Processor' with: [spec requires: #('Historia-Event' 'Historia-Storage')].
+		spec package: 'Historia-Model' with: [spec requires: #('Historia-Codec' 'Historia-Core' 'Historia-Event' 'RediStick')].
+		spec package: 'Historia-Storage' with: [spec requires: #('Historia-Codec' 'Historia-Core' 'Historia-Event' 'RediStick')].
+		spec package: 'Historia-Tests' with: [spec requires: #('Core')].
+		spec package: 'Historia-Examples-Bank' with: [spec requires: #('Historia-Event' 'Historia-Model')].
+		spec package: 'Historia-Examples-Bank-Tests' with: [spec requires: #('Historia-Examples-Bank')].
 		spec
 			group: 'default' with: #( 'Core' 'Tests' 'Examples' 'Examples-Tests');
 			group: 'Core'
