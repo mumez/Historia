@@ -38,5 +38,5 @@ BaselineOfHistoria >> redistick: spec [
 		baseline: 'RediStick'
 		with: [ spec
 				repository: 'github://mumez/RediStick/repository';
-				loads: 'default' ]
+				loads: 'StreamObjects' ]
 ]
