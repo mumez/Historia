@@ -1,0 +1,13 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'Historia',
+      #directory : 'src',
+      #load : [ 'Tests', 'Examples-Tests'],
+      #onConflict : #useLoaded,
+      #useLatestMetacello : false,
+      #onWarningLog : true,
+      #platforms : [ #pharo ]
+    }
+  ]
+}
