@@ -166,7 +166,7 @@ HsBankTestCase >> testAccountsPropagated [
 	bankApp eventPusher waitEmptyFor: 100.
 	readBankApp catchup.
 	[self sleep: 100.
-	readAcc1 := readBankApp accountAt: accountId.
+	readAcc1 := [readBankApp accountAt: accountId] on: HsBankAccountNotExist do: [:ex| ex return: nil].
 	readAcc1 isNil] whileTrue.	
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
