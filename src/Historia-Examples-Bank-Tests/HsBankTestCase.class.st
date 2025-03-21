@@ -165,6 +165,7 @@ HsBankTestCase >> testAccountsPropagated [
 	self assert: (bankApp getBalanceAt: accountId) equals: 10.
 	bankApp eventPusher waitEmptyFor: 100.
 	readBankApp catchup.
+	self sleep: 100.
 	readAcc1 := readBankApp accountAt: accountId.
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
@@ -196,6 +197,7 @@ HsBankTestCase >> testAccountsTransferNotified [
 	bankApp deposit: 10 at: accountId2.
 	bankApp eventPusher waitEmptyFor: 100.
 	notifiedApp catchup.
+	self sleep: 100.
 	self assert: (notifiedApp modelAt: accountId1) balance equals: 100.
 	bankApp transfer: 50 from: accountId1 to: accountId2.
 	bankApp eventPusher waitEmptyFor: 100.
