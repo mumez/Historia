@@ -164,10 +164,10 @@ HsBankTestCase >> testAccountsPropagated [
 	bankApp withdraw: 90 at: accountId.
 	self assert: (bankApp getBalanceAt: accountId) equals: 10.
 	bankApp eventPusher waitEmptyFor: 100.
-	readBankApp eventPuller loopingPriority: Processor userInterruptPriority.
 	readBankApp catchup.
-	self sleep: 100.
+	[self sleep: 100.
 	readAcc1 := readBankApp accountAt: accountId.
+	readAcc1 isNil] whileTrue.	
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
 	bankApp eventPusher waitEmptyFor: 100.
