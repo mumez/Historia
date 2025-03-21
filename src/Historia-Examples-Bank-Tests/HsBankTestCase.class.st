@@ -152,6 +152,7 @@ HsBankTestCase >> testAccountWithdrawOverdraftLimitSet [
 { #category : 'tests' }
 HsBankTestCase >> testAccountsPropagated [
 	| spaceId bankApp accountId acc1 readBankApp readAcc1 |
+	HsEvent initialize.
 	spaceId := 'test-baAccountsPropagated'.
 	bankApp := HsBankAccountSpace spaceId: spaceId.
 	readBankApp := HsBankAccountSpace spaceId: spaceId.
@@ -165,9 +166,8 @@ HsBankTestCase >> testAccountsPropagated [
 	self assert: (bankApp getBalanceAt: accountId) equals: 10.
 	bankApp eventPusher waitEmptyFor: 100.
 	readBankApp catchup.
-	[self sleep: 100.
-	readAcc1 := [readBankApp accountAt: accountId] on: HsBankAccountNotExist do: [:ex| ex return: nil].
-	readAcc1 isNil] whileTrue.	
+	self sleep: 100.
+	readAcc1 := readBankApp accountAt: accountId.
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
 	bankApp eventPusher waitEmptyFor: 100.
@@ -178,6 +178,7 @@ HsBankTestCase >> testAccountsPropagated [
 { #category : 'tests' }
 HsBankTestCase >> testAccountsTransferNotified [
 	| spaceId bankApp accountId1 acc1 accountId2 acc2 notifiedApp events transferedNotices transferedNotice |
+	HsEvent initialize.
 	spaceId := 'test-baTransferNotified'.
 	bankApp := HsBankAccountSpace spaceId: spaceId.
 	notifiedApp := HsAnnouncingModelEventSink spaceId: spaceId.
