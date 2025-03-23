@@ -17,6 +17,11 @@ Class {
 	#package : 'Historia-Model'
 }
 
+{ #category : 'utilities' }
+HsModelEventSink class >> initializeEvents [
+	HsEvent initialize
+]
+
 { #category : 'instance creation' }
 HsModelEventSink class >> spaceId: aSpaceId [
 	^ self new
