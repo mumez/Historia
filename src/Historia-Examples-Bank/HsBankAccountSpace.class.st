@@ -5,6 +5,11 @@ Class {
 	#package : 'Historia-Examples-Bank'
 }
 
+{ #category : 'class initialization' }
+HsBankAccountSpace class >> initialize [
+	self initializeEvents
+]
+
 { #category : 'private' }
 HsBankAccountSpace >> accountAt: accountId [
 	| acc |
