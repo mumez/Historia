@@ -23,3 +23,7 @@ Metacello new
   repository: 'github://mumez/Historia/src';
   load.
 ```
+
+## How to use the framework
+
+Please see the [Tutorial](./doc/Tutorial.md)
