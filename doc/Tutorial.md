@@ -25,6 +25,15 @@ HsModel << #HsBankAccount
 
 Please add plain accessor(getter/setter) methods for `name`, `emailAddress`. For `balance`, we only need the `balance` getter, because we will add a mutation method for `balance` later.
 
+Also add initializer:
+
+```Smalltalk
+initialize
+    name := ''.
+    emailAddress := '',
+	balance := 0.
+```
+
 ### Defining the Event Class
 
 All changes to the model are performed through events. Each type of mutation requires a corresponding event class. For example, to handle changes to the bank account balance, we define an event class:
@@ -57,68 +66,7 @@ HsModelSpace << #HsBankAccountSpace
 - **Event**: Represents changes to the model (e.g., `HsBankAccountBalanceChanged`).
 - **ModelSpace**: Manages the state and lifecycle of models (e.g., `HsBankAccountSpace`).
 
-## Implementing Mutations
-
 Once the key classes are defined, the next step is to implement mutations. Mutations are the actions that modify the state of the model. These are performed by creating and applying events.
-
-# Tutorial
-
-This tutorial explains how to use the framework by building a sample Bank Account application. The tutorial will guide you through defining the key classes and implementing the necessary components.
-
-## Defining Key Classes
-
-To develop an application using the framework, you need to define three main types of classes:
-
-1. **Model**: Represents the core data structure of your application.
-2. **Event**: Represents changes or mutations to the model.
-3. **ModelSpace (Aggregation)**: Manages the lifecycle and state of models, including snapshots and event replay.
-
-### Defining the Model Class
-
-The `Model` class represents the main data structure of your application. In this example, we define a `HsBankAccount` model to represent a bank account.
-
-```Smalltalk
-HsModel << #HsBankAccount
-    slots: { #name . #emailAddress . #balance };
-    package: 'Historia-Examples-Bank'
-```
-
-- `HsModel` is an abstract class provided by the framework for defining models.
-- The `slots` define the attributes of the model. Here, we define `name`, `emailAddress`, and `balance` as the attributes of the bank account.
-
-### Defining the Event Class
-
-All changes to the model are performed through events. Each type of mutation requires a corresponding event class. For example, to handle changes to the bank account balance, we define an event class:
-
-```Smalltalk
-HsValueChanged << #HsBankAccountBalanceChanged
-    slots: {};
-    package: 'Historia-Examples-Bank'
-```
-
-- `HsValueChanged` is a base class for events that represent changes to a model's values.
-- The `slots` can be used to define additional data required for the event. In this case, no additional data is needed.
-
-### Defining the ModelSpace (Aggregation)
-
-The `ModelSpace` class is responsible for managing the lifecycle of models, including saving snapshots and replaying events. Here, we define a `HsBankAccountSpace` to manage `HsBankAccount` models.
-
-```Smalltalk
-HsModelSpace << #HsBankAccountSpace
-    slots: {};
-    package: 'Historia-Examples-Bank'
-```
-
-- `HsModelSpace` is a base class for managing models.
-- The `slots` can be used to define additional attributes or dependencies for the `ModelSpace`.
-
-### Summary of Key Classes
-
-- **Model**: Represents the structure of your data (e.g., `HsBankAccount`).
-- **Event**: Represents changes to the model (e.g., `HsBankAccountBalanceChanged`).
-- **ModelSpace**: Manages the state and lifecycle of models (e.g., `HsBankAccountSpace`).
-
----
 
 ## Implementing Mutations
 
@@ -185,33 +133,134 @@ applyBalanceChange: newBalanceChange
 
 ---
 
-### Step 4: Using the Mutation in Practice
+Now you are done implementing the `balance` mutation. You can proceed to explore how to manage snapshots and replay events in the `ModelSpace` to fully utilize the framework's capabilities!
 
-Now that the mutation is implemented, you can use it in your application. For example, to update the balance of a bank account:
+## Registering BankAccount Domain Class to ModelSpace
+
+In this section, we will register the `HsBankAccount` domain model to the `HsBankAccountSpace`. This step is essential because the `ModelSpace` is responsible for managing the lifecycle of models, including storing, retrieving, and replaying events.
+
+### What is a ModelSpace?
+
+A `ModelSpace` acts as a container for managing multiple model instances. It provides the following key functionalities:
+
+- **Aggregation**: It aggregates model instances, allowing you to manage them collectively.
+- **Lifecycle Management**: It handles the creation, updating, and deletion of models.
+- **Event Replay**: It can replay events to restore the state of models to a specific point in time.
+
+Each `ModelSpace` is identified by a unique `spaceId`, which allows you to create and manage multiple independent spaces.
+
+### Registering a Model to a ModelSpace
+
+To register a model instance (e.g., a bank account) to a `ModelSpace`, follow these steps:
+
+1. **Create a ModelSpace**: Use the `spaceId:` method to create a new `ModelSpace` instance.
+2. **Create a Model Instance**: Instantiate the `HsBankAccount` model and set its attributes.
+3. **Register the Model**: Use the `putModel:` method to add the model to the `ModelSpace`.
+
+Here is an example:
 
 ```Smalltalk
-| account |
-account := HsBankAccount new.
-account name: 'John Doe'; emailAddress: 'john.doe@example.com'; balance: 100.
+"Step 1: Create a ModelSpace"
+spaceId := 'bank-account-app-1'.
+modelSpace := HsBankAccountSpace spaceId: spaceId.
 
-"Mutate the balance"
-account mutateBalanceChange: 50.
+"Step 2: Create a BankAccount model instance"
+bankAccount1 := HsBankAccount id: '00001'.
+bankAccount1 name: 'John Smith'; emailAddress: 'js@example.com'.
 
-"Resulting balance"
-account balance. "Should now be 150"
+"Step 3: Register the model to the ModelSpace"
+modelSpace putModel: bankAccount1.
+
+"Retrieve the model by its ID"
+modelSpace modelAt: '00001'. "-> returns bankAccount1"
 ```
 
-#### What Happens Internally:
+### Explanation of the Code
 
-1. The `mutateBalanceChange:` method creates a `HsBankAccountBalanceChanged` event.
-2. The event is applied to the `HsBankAccount` model, updating the `balance` attribute.
-3. The framework records the event, allowing it to be replayed or audited later.
+1. **Creating a ModelSpace**:
 
----
+   - The `spaceId:` method initializes a new `ModelSpace` with a unique identifier (`spaceId`).
+   - This identifier ensures that the `ModelSpace` is distinct and can be referenced later.
 
-### Final Notes
+2. **Creating a Model Instance**:
 
-- **Event Sourcing Benefits**: By using events to track mutations, you gain the ability to audit changes, replay events to restore state, and debug issues by analyzing the event history.
-- **Framework Integration**: The framework handles the creation, application, and storage of events, making it easy to implement complex business logic.
+   - The `HsBankAccount` model is instantiated with a unique ID (`'00001'`).
+   - Attributes such as `name` and `emailAddress` are set using accessor methods.
 
-Now you are done implementing the `balance` mutation. You can proceed to explore how to manage snapshots and replay events in the `ModelSpace` to fully utilize the framework's capabilities!
+3. **Registering the Model**:
+   - The `putModel:` method adds the model instance to the `ModelSpace`.
+   - Once registered, the model can be retrieved using its ID with the `modelAt:` method.
+
+### Important Notes
+
+- **Model IDs**: Each model must have a unique ID within the `ModelSpace`. This ID is used to identify and retrieve the model.
+- **Event-Driven Registration**: In a typical application, model registration is often performed through an event (e.g., `HsBankAccountCreated`). For simplicity, this example omits the event-based registration process.
+- **Persistence**: The `ModelSpace` ensures that all registered models and their events are stored in a persistent repository, allowing for replay and recovery.
+
+### Example Usage
+
+Once the model is registered, you can perform operations such as depositing or withdrawing amounts, as shown in the next section. Here is an example of how to interact with the registered model:
+
+```Smalltalk
+"Deposit money into the account"
+modelSpace deposit: 100 at: '00001'.
+
+"Withdraw money from the account"
+modelSpace withdraw: 30 at: '00001'.
+
+"Check the balance"
+modelSpace getBalanceAt: '00001'. "-> returns 70"
+```
+
+By registering models to a `ModelSpace`, you gain full control over their lifecycle and state, enabling powerful features such as event replay and auditing.
+
+## Defining domain actions to ModelSpace
+
+Next, add domain specific actions to HsBankAccountSpace.
+It should support:
+
+- Retrieving a balance of the specific account.
+- Depositing an amount to the specific account.
+- Withdrawing an amount from the specific account.
+
+For Retrieving:
+
+```
+getBalanceAt: accountId
+	| acc |
+	acc := self modelAt: accountId.
+	^ acc balance
+```
+
+For Depositing:
+
+```
+deposit: amount at: accountId
+	| acc |
+	acc := self modelAt: accountId.
+	acc appendBalanceChange: amount.
+	self save: acc
+```
+
+For withdrawing:
+
+```
+withdraw: amount at: accountId
+	| acc |
+	acc := self modelAt: accountId.
+	acc appendBalanceChange: amount negated.
+	self save: acc
+```
+
+Please note that `save:` is used after mutating an account. It stores event instances to the underlying repository for replay back.
+
+Now you can:
+
+```Smalltalk
+modelSpace deposit: 100 at: '00001'.
+modelSpace withdraw: 30 at: '00001'.
+modelSpace getBalanceAt: '00001'. "-> returns 70"
+
+```
+
+## Replay back events and Snapshotting
