@@ -37,6 +37,11 @@ HsModelSpace >> fireEvent: anEvent [
 	self eventPusher queueEvent: anEvent
 ]
 
+{ #category : 'snapshotting' }
+HsModelSpace >> listSnapshotVersionsReversedFromLast: count [
+	^ self snapshotStorage listSnapshotVersionsReversedFromLast: count
+]
+
 { #category : 'releasing' }
 HsModelSpace >> releaseStorages [
 	self eventPusher destroy.
@@ -53,6 +58,11 @@ HsModelSpace >> saveAll: aCollectionOfModel [
 	| events |
 	events := aCollectionOfModel gather: [ :each | each eventsFlushingDo: [:evs | evs] ].
 	self eventPusher queueEvents: events
+]
+
+{ #category : 'snapshotting' }
+HsModelSpace >> saveSnapshot [
+	^ self saveSnapshot: self lastSnapshotVersion
 ]
 
 { #category : 'snapshotting' }
