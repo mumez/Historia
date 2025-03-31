@@ -175,92 +175,133 @@ modelSpace putModel: bankAccount1.
 modelSpace modelAt: '00001'. "-> returns bankAccount1"
 ```
 
-### Explanation of the Code
-
-1. **Creating a ModelSpace**:
-
-   - The `spaceId:` method initializes a new `ModelSpace` with a unique identifier (`spaceId`).
-   - This identifier ensures that the `ModelSpace` is distinct and can be referenced later.
-
-2. **Creating a Model Instance**:
-
-   - The `HsBankAccount` model is instantiated with a unique ID (`'00001'`).
-   - Attributes such as `name` and `emailAddress` are set using accessor methods.
-
-3. **Registering the Model**:
-   - The `putModel:` method adds the model instance to the `ModelSpace`.
-   - Once registered, the model can be retrieved using its ID with the `modelAt:` method.
-
 ### Important Notes
 
 - **Model IDs**: Each model must have a unique ID within the `ModelSpace`. This ID is used to identify and retrieve the model.
 - **Event-Driven Registration**: In a typical application, model registration is often performed through an event (e.g., `HsBankAccountCreated`). For simplicity, this example omits the event-based registration process.
 - **Persistence**: The `ModelSpace` ensures that all registered models and their events are stored in a persistent repository, allowing for replay and recovery.
 
-### Example Usage
-
-Once the model is registered, you can perform operations such as depositing or withdrawing amounts, as shown in the next section. Here is an example of how to interact with the registered model:
-
-```Smalltalk
-"Deposit money into the account"
-modelSpace deposit: 100 at: '00001'.
-
-"Withdraw money from the account"
-modelSpace withdraw: 30 at: '00001'.
-
-"Check the balance"
-modelSpace getBalanceAt: '00001'. "-> returns 70"
-```
-
 By registering models to a `ModelSpace`, you gain full control over their lifecycle and state, enabling powerful features such as event replay and auditing.
 
-## Defining domain actions to ModelSpace
+## Defining Domain Actions to ModelSpace
 
-Next, add domain specific actions to HsBankAccountSpace.
-It should support:
+In this section, we will define domain-specific actions for the `HsBankAccountSpace`. These actions allow you to interact with the `ModelSpace` to perform operations such as retrieving a balance, depositing money, and withdrawing money for specific accounts.
 
-- Retrieving a balance of the specific account.
-- Depositing an amount to the specific account.
-- Withdrawing an amount from the specific account.
+### Why Add Domain Actions?
 
-For Retrieving:
+The `ModelSpace` provides a generic mechanism for managing models, but domain-specific actions make it easier to encapsulate business logic and provide a clear API for interacting with the models. By defining these actions, you can:
 
-```
-getBalanceAt: accountId
-	| acc |
-	acc := self modelAt: accountId.
-	^ acc balance
-```
+- Simplify common operations (e.g., retrieving a balance).
+- Ensure consistency by centralizing business logic.
+- Improve code readability and maintainability.
 
-For Depositing:
+### Actions to Implement
 
-```
-deposit: amount at: accountId
-	| acc |
-	acc := self modelAt: accountId.
-	acc appendBalanceChange: amount.
-	self save: acc
-```
+We will implement the following actions in the `HsBankAccountSpace`:
 
-For withdrawing:
+1. **Retrieving a Balance**: Get the current balance of a specific account.
+2. **Depositing Money**: Add a specified amount to an account's balance.
+3. **Withdrawing Money**: Subtract a specified amount from an account's balance.
 
-```
-withdraw: amount at: accountId
-	| acc |
-	acc := self modelAt: accountId.
-	acc appendBalanceChange: amount negated.
-	self save: acc
-```
+---
 
-Please note that `save:` is used after mutating an account. It stores event instances to the underlying repository for replay back.
+### Retrieving a Balance
 
-Now you can:
+To retrieve the balance of a specific account, we define the `getBalanceAt:` method. This method takes an account ID as input, retrieves the corresponding model from the `ModelSpace`, and returns its balance.
 
 ```Smalltalk
-modelSpace deposit: 100 at: '00001'.
-modelSpace withdraw: 30 at: '00001'.
-modelSpace getBalanceAt: '00001'. "-> returns 70"
+getBalanceAt: accountId
+    | acc |
+    acc := self modelAt: accountId.
+    ^ acc balance
+```
 
+#### Explanation:
+
+1. **Retrieve the Model**: The `modelAt:` method fetches the model instance associated with the given `accountId`.
+2. **Access the Balance**: The `balance` attribute of the model is returned.
+
+**Example Usage**:
+
+```Smalltalk
+modelSpace getBalanceAt: '00001'. "-> returns the balance of account '00001'"
+```
+
+---
+
+### Depositing Money
+
+To deposit money into an account, we define the `deposit:at:` method. This method retrieves the account model, appends a balance change event, and saves the updated model.
+
+```Smalltalk
+deposit: amount at: accountId
+    | acc |
+    acc := self modelAt: accountId.
+    acc appendBalanceChange: amount.
+    self save: acc
+```
+
+#### Explanation:
+
+1. **Retrieve the Model**: The `modelAt:` method fetches the account model.
+2. **Append a Balance Change**: The `appendBalanceChange:` method records the deposit as an event.
+3. **Save the Model**: The `save:` method persists the updated model and its events to the repository.
+
+**Example Usage**:
+
+```Smalltalk
+modelSpace deposit: 100 at: '00001'. "Deposits 100 into account '00001'"
+```
+
+---
+
+### Withdrawing Money
+
+To withdraw money from an account, we define the `withdraw:at:` method. This method is similar to the deposit method but appends a negative balance change to represent the withdrawal.
+
+```Smalltalk
+withdraw: amount at: accountId
+    | acc |
+    acc := self modelAt: accountId.
+    acc appendBalanceChange: amount negated.
+    self save: acc
+```
+
+#### Explanation:
+
+1. **Retrieve the Model**: The `modelAt:` method fetches the account model.
+2. **Append a Negative Balance Change**: The `appendBalanceChange:` method records the withdrawal as an event by negating the amount.
+3. **Save the Model**: The `save:` method persists the updated model and its events to the repository.
+
+**Example Usage**:
+
+```Smalltalk
+modelSpace withdraw: 50 at: '00001'. "Withdraws 50 from account '00001'"
+```
+
+---
+
+### Important Notes
+
+1. **Event Persistence**: The `save:` method ensures that pending events (in this case, HsBankAccountBalanceChanged instances) are stored in the underlying repository. This allows the framework to replay events and restore the state of the model at any point in time.
+2. **Consistency**: By centralizing the logic for deposits and withdrawals in the `ModelSpace`, you ensure that all operations are consistent and follow the same rules.
+3. **Error Handling**: In a real-world application, you should add error handling to check for conditions such as insufficient funds during withdrawals.
+
+---
+
+### Example Workflow
+
+Here is an example of how these actions can be used together:
+
+```Smalltalk
+"Step 1: Deposit money into the account"
+modelSpace deposit: 100 at: '00001'.
+
+"Step 2: Withdraw money from the account"
+modelSpace withdraw: 30 at: '00001'.
+
+"Step 3: Retrieve the current balance"
+modelSpace getBalanceAt: '00001'. "-> returns 70"
 ```
 
 ## Replay back events and Snapshotting
