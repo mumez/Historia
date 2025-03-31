@@ -77,8 +77,16 @@ HsSnapshotStorage >> listSnapshotVersions [
 ]
 
 { #category : 'versions' }
-HsSnapshotStorage >> listSnapshotVersionsReversedFromLast: count [
-	^ (self stick endpoint lRange: self versionsListName start: count negated end: -1) reversed 
+HsSnapshotStorage >> listSnapshotVersionsReversedFrom: version limit: limit [
+	| endPos startPos |
+	endPos := self stick endpoint lPosBackward: self versionsListName value: version maxlen: nil.
+	startPos := (endPos - limit + 1) max: 0.
+	^ (self stick endpoint lRange: self versionsListName start: startPos end: endPos) reversed 
+]
+
+{ #category : 'versions' }
+HsSnapshotStorage >> listSnapshotVersionsReversedFromLast: limit [
+	^ (self stick endpoint lRange: self versionsListName start: limit negated end: -1) reversed 
 ]
 
 { #category : 'private' }

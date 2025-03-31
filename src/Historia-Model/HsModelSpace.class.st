@@ -38,8 +38,13 @@ HsModelSpace >> fireEvent: anEvent [
 ]
 
 { #category : 'snapshotting' }
-HsModelSpace >> listSnapshotVersionsReversedFromLast: count [
-	^ self snapshotStorage listSnapshotVersionsReversedFromLast: count
+HsModelSpace >> listSnapshotVersionsReversedFrom: version limit: limit [
+	^ self snapshotStorage listSnapshotVersionsReversedFrom: version limit: limit
+]
+
+{ #category : 'snapshotting' }
+HsModelSpace >> listSnapshotVersionsReversedFromLast: limit [
+	^ self snapshotStorage listSnapshotVersionsReversedFromLast: limit
 ]
 
 { #category : 'releasing' }
