@@ -6,65 +6,6 @@ Class {
 }
 
 { #category : 'tests' }
-HsSnapshotStorageTestCase >> testListSnapshotVersionsReversedFromLast [
-	| spaceId versions models modelSpace snapStorage lastThree lastOne all twenty |
-	spaceId := 'hs-ssListSnapshotVersionsReversedFromLast'.
-	modelSpace := HsModelSpace spaceId: spaceId.
-	self spaces: { modelSpace } do: [
-	models := {#num -> 0} asDictionary.
-	modelSpace models: models.
-	1 to: 20 do: [ :idx |
-		models at: #num put: idx.
-		modelSpace saveSnapshot: (RsStreamMessageId mainId: 10000 + idx subId: 100 + idx).
-	].
-	snapStorage := modelSpace snapshotStorage.
-	versions := snapStorage listSnapshotVersions.
-	self assert: versions size equals: 20.
-	
-	lastThree := snapStorage listSnapshotVersionsReversedFromLast: 3.
-	self assert: lastThree size equals: 3.
-	self assertCollection: lastThree asArray equals: #('10020-120' '10019-119' '10018-118').
-	
-	lastOne := snapStorage listSnapshotVersionsReversedFromLast: 1.
-	self assertCollection: lastOne asArray equals: #('10020-120').
-	
-	all := snapStorage listSnapshotVersionsReversedFromLast: 0.
-	twenty := snapStorage listSnapshotVersionsReversedFromLast: 20.
-	self assertCollection: all asArray equals: twenty asArray.
-	]
-	
-]
-
-{ #category : 'tests' }
-HsSnapshotStorageTestCase >> testListSnapshotVersionsReversedFromLimit [
-	| spaceId versions models modelSpace snapStorage lastThree fromVersion nextThree nextToFirst |
-	spaceId := 'hs-ssListSnapshotVersionsReversedFromLimit'.
-	modelSpace := HsModelSpace spaceId: spaceId.
-	self spaces: { modelSpace } do: [
-	models := {#num -> 0} asDictionary.
-	modelSpace models: models.
-	1 to: 20 do: [ :idx |
-		models at: #num put: idx.
-		modelSpace saveSnapshot: (RsStreamMessageId mainId: 10000 + idx subId: 100 + idx).
-	].
-	snapStorage := modelSpace snapshotStorage.
-	versions := snapStorage listSnapshotVersions.
-	self assert: versions size equals: 20.
-	
-	lastThree := snapStorage listSnapshotVersionsReversedFromLast: 3.
-	fromVersion := lastThree last.
-	nextThree := snapStorage listSnapshotVersionsReversedFrom: fromVersion limit: 3.
-	self assert: nextThree size equals: 3.
-	self assertCollection: nextThree asArray equals: #('10018-118' '10017-117' '10016-116').
-	nextToFirst := snapStorage listSnapshotVersionsReversedFrom: '10016-116' limit: 30.
-	self assert: nextToFirst size equals: 16.
-	self assert: nextToFirst last equals: '10001-101'.
-	
-	]
-	
-]
-
-{ #category : 'tests' }
 HsSnapshotStorageTestCase >> testSaveAndLoad [
 	| spaceId versions models modelSpace snapStorage |
 	spaceId := 'hs-ssSaveAndLoad'.
@@ -123,6 +64,65 @@ HsSnapshotStorageTestCase >> testSnapshotVersions [
 	self assert: (snapStorage recentSnapshotVersionFrom: '10003-100') equals: '10002-102'.
 	self assert: (snapStorage recentSnapshotVersionFrom: '10002-102') equals: '10001-101'.
 	self assert: (snapStorage recentSnapshotVersionFrom: '10001-101') equals: nil.
+	
+	]
+	
+]
+
+{ #category : 'tests' }
+HsSnapshotStorageTestCase >> testSnapshotVersionsReversedFromLast [
+	| spaceId versions models modelSpace snapStorage lastThree lastOne all twenty |
+	spaceId := 'hs-ssSnapshotVersionsReversedFromLast'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
+	models := {#num -> 0} asDictionary.
+	modelSpace models: models.
+	1 to: 20 do: [ :idx |
+		models at: #num put: idx.
+		modelSpace saveSnapshot: (RsStreamMessageId mainId: 10000 + idx subId: 100 + idx).
+	].
+	snapStorage := modelSpace snapshotStorage.
+	versions := snapStorage listSnapshotVersions.
+	self assert: versions size equals: 20.
+	
+	lastThree := snapStorage snapshotVersionsReversedFromLast: 3.
+	self assert: lastThree size equals: 3.
+	self assertCollection: lastThree asArray equals: #('10020-120' '10019-119' '10018-118').
+	
+	lastOne := snapStorage snapshotVersionsReversedFromLast: 1.
+	self assertCollection: lastOne asArray equals: #('10020-120').
+	
+	all := snapStorage snapshotVersionsReversedFromLast: 0.
+	twenty := snapStorage snapshotVersionsReversedFromLast: 20.
+	self assertCollection: all asArray equals: twenty asArray.
+	]
+	
+]
+
+{ #category : 'tests' }
+HsSnapshotStorageTestCase >> testSnapshotVersionsReversedFromLimit [
+	| spaceId versions models modelSpace snapStorage lastThree fromVersion nextThree nextToFirst |
+	spaceId := 'hs-ssSnapshotVersionsReversedFromLimit'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
+	models := {#num -> 0} asDictionary.
+	modelSpace models: models.
+	1 to: 20 do: [ :idx |
+		models at: #num put: idx.
+		modelSpace saveSnapshot: (RsStreamMessageId mainId: 10000 + idx subId: 100 + idx).
+	].
+	snapStorage := modelSpace snapshotStorage.
+	versions := snapStorage listSnapshotVersions.
+	self assert: versions size equals: 20.
+	
+	lastThree := snapStorage snapshotVersionsReversedFromLast: 3.
+	fromVersion := lastThree last.
+	nextThree := snapStorage snapshotVersionsReversedFrom: fromVersion limit: 3.
+	self assert: nextThree size equals: 3.
+	self assertCollection: nextThree asArray equals: #('10018-118' '10017-117' '10016-116').
+	nextToFirst := snapStorage snapshotVersionsReversedFrom: '10016-116' limit: 30.
+	self assert: nextToFirst size equals: 16.
+	self assert: nextToFirst last equals: '10001-101'.
 	
 	]
 	

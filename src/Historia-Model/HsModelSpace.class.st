@@ -37,16 +37,6 @@ HsModelSpace >> fireEvent: anEvent [
 	self eventPusher queueEvent: anEvent
 ]
 
-{ #category : 'snapshotting' }
-HsModelSpace >> listSnapshotVersionsReversedFrom: version limit: limit [
-	^ self snapshotStorage listSnapshotVersionsReversedFrom: version limit: limit
-]
-
-{ #category : 'snapshotting' }
-HsModelSpace >> listSnapshotVersionsReversedFromLast: limit [
-	^ self snapshotStorage listSnapshotVersionsReversedFromLast: limit
-]
-
 { #category : 'releasing' }
 HsModelSpace >> releaseStorages [
 	self eventPusher destroy.
@@ -78,6 +68,16 @@ HsModelSpace >> saveSnapshot: snapshotVersion [
 { #category : 'snapshotting' }
 HsModelSpace >> snapshotInterval: anInteger [
 	self settings snapshotInterval: anInteger 
+]
+
+{ #category : 'snapshotting' }
+HsModelSpace >> snapshotVersionsReversedFrom: version limit: limit [
+	^ self snapshotStorage snapshotVersionsReversedFrom: version limit: limit
+]
+
+{ #category : 'snapshotting' }
+HsModelSpace >> snapshotVersionsReversedFromLast: limit [
+	^ self snapshotStorage snapshotVersionsReversedFromLast: limit
 ]
 
 { #category : 'pushing-events' }

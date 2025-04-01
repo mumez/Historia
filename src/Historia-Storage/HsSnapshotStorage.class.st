@@ -76,19 +76,6 @@ HsSnapshotStorage >> listSnapshotVersions [
 	^ self stick endpoint lRange: self versionsListName start: 0 end: -1 
 ]
 
-{ #category : 'versions' }
-HsSnapshotStorage >> listSnapshotVersionsReversedFrom: version limit: limit [
-	| endPos startPos |
-	endPos := self stick endpoint lPosBackward: self versionsListName value: version maxlen: nil.
-	startPos := (endPos - limit + 1) max: 0.
-	^ (self stick endpoint lRange: self versionsListName start: startPos end: endPos) reversed 
-]
-
-{ #category : 'versions' }
-HsSnapshotStorage >> listSnapshotVersionsReversedFromLast: limit [
-	^ (self stick endpoint lRange: self versionsListName start: limit negated end: -1) reversed 
-]
-
 { #category : 'private' }
 HsSnapshotStorage >> materializeSnapshotFromEntry: aStreamEntry [
 	| keyAndData snapshotBinary domainModels |
@@ -162,6 +149,19 @@ HsSnapshotStorage >> snapshotAt: snapshotVersion put: domainModels [
 	^ {
 		  messageId.
 		  bytes }
+]
+
+{ #category : 'versions' }
+HsSnapshotStorage >> snapshotVersionsReversedFrom: version limit: limit [
+	| endPos startPos |
+	endPos := self stick endpoint lPosBackward: self versionsListName value: version maxlen: nil.
+	startPos := (endPos - limit + 1) max: 0.
+	^ (self stick endpoint lRange: self versionsListName start: startPos end: endPos) reversed 
+]
+
+{ #category : 'versions' }
+HsSnapshotStorage >> snapshotVersionsReversedFromLast: limit [
+	^ (self stick endpoint lRange: self versionsListName start: limit negated end: -1) reversed 
 ]
 
 { #category : 'accessing' }

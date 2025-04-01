@@ -126,7 +126,7 @@ HsSettings >> settingsDict: anObject [
 
 { #category : 'accessing' }
 HsSettings >> shouldAutoStartEventPusher [
-	^ self at: #shouldAutoStartEventPusher ifAbsentPut: [false]
+	^ self at: #shouldAutoStartEventPusher ifAbsentPut: [true]
 ]
 
 { #category : 'accessing' }
