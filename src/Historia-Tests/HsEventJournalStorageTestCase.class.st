@@ -74,3 +74,58 @@ HsEventJournalStorageTestCase >> testBuildSendingPerformCommandData [
 	self assert: (event selector) equals: #from:to:
 	
 ]
+
+{ #category : 'tests' }
+HsEventJournalStorageTestCase >> testEventVersionsReversedFromLast [
+	| spaceId modelSpace vmodel all lastFive |
+	spaceId := 'hs-ejEventVersionsReversedFromLast'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
+	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
+	vmodel := modelSpace modelAt: 'vals-1'.
+	modelSpace startPushingEvents.
+	1 to: 50 do: [ :idx | 
+		vmodel add: idx.
+		vmodel save.
+	].
+	modelSpace eventPusher waitEmptyFor: 100. 
+	all := modelSpace eventJournalStorage allEvents.
+	self assert: all size equals: 50.
+	
+	lastFive := modelSpace eventVersionsReversedFromLast: 5.
+	self assertCollection: lastFive asArray equals: ((all last: 5) reversed collect: [:e | e eventId]) asArray.
+	]
+	
+]
+
+{ #category : 'tests' }
+HsEventJournalStorageTestCase >> testEventVersionsReversedFromLimit [
+	| spaceId modelSpace vmodel all lastThree nextSix uptoFirst |
+	spaceId := 'hs-ejEventVersionsReversedFromLimit'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
+	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
+	vmodel := modelSpace modelAt: 'vals-1'.
+	modelSpace startPushingEvents.
+	1 to: 50 do: [ :idx | 
+		vmodel add: idx.
+		vmodel save.
+	].
+	modelSpace eventPusher waitEmptyFor: 100. 
+	all := modelSpace eventJournalStorage allEvents.
+	self assert: all size equals: 50.
+	
+	lastThree := modelSpace eventVersionsReversedFromLast: 3.
+	nextSix := modelSpace eventVersionsReversedFrom: lastThree last limit: 6.
+	
+	self assertCollection: lastThree asArray equals: ((all last: 3) reversed collect: [:e | e eventId]) asArray.
+	self assert: lastThree last equals: nextSix first.
+	self assertCollection: nextSix asArray equals: ((all reversed copyFrom: 3 to: 8) collect: [:e | e eventId]) asArray.
+	
+	uptoFirst := modelSpace eventVersionsReversedFrom: nextSix last limit: 100.
+	self assert: nextSix last equals: uptoFirst first.
+	self assertCollection: uptoFirst asArray equals: ((all reversed copyFrom: 8 to: all size) collect: [:e | e eventId]) asArray.
+	
+	]
+	
+]

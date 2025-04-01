@@ -85,7 +85,7 @@ HsModelEventSink >> eventPullerClass [
 
 { #category : 'accessing-events' }
 HsModelEventSink >> eventVersionsReversedFrom: version limit: limit [
-	^ self eventJournalStorage eventVersionsReversedFrom: limit
+	^ self eventJournalStorage eventVersionsReversedFrom: version limit: limit
 ]
 
 { #category : 'accessing-events' }
