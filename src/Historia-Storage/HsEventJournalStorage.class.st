@@ -59,6 +59,16 @@ HsEventJournalStorage >> eventStream [
 ]
 
 { #category : 'actions' }
+HsEventJournalStorage >> eventVersionsReversedFrom: version limit: limit [
+	^ (self streamIterator reversed contentsFrom: version count: limit) collect: [ :each | each id ]
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> eventVersionsReversedFromLast: limit [
+	^ (self streamIterator reversed contentsFrom: self lastEventVersion count: limit) collect: [ :each | each id ]
+]
+
+{ #category : 'actions' }
 HsEventJournalStorage >> eventsFrom: fromMessageId to: toMessageId [
 	| events |
 	events := OrderedCollection new.
@@ -82,6 +92,11 @@ HsEventJournalStorage >> initEventStream [
 { #category : 'initialize-release' }
 HsEventJournalStorage >> initialize [
 	self initEventStream 
+]
+
+{ #category : 'testing' }
+HsEventJournalStorage >> isConnected [
+	^ self eventStream stick isConnected
 ]
 
 { #category : 'accessing' }

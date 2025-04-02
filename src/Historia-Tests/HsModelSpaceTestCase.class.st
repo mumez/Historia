@@ -232,12 +232,13 @@ HsModelSpaceTestCase >> testGoTo [
 	vmodel := modelSpace modelAt: 'vals-1'.
 	modelSpace eventPusher start.
 	modelSpaceForSnapshot catchup.
+	self sleep: 100.
 	1 to: 10 do: [ :idx |
 		vmodel add: idx.
 		vmodel save.
 	].
 	self assert: (modelSpace eventPusher waitEmptyFor: 100).
-	self sleep: 200.
+	self sleep: 100.
 	snapshotVersions := modelSpace snapshotStorage listSnapshotVersions.
 	self assert: snapshotVersions size equals: 3.
 	events := modelSpace eventJournalStorage allEvents. 
