@@ -94,6 +94,11 @@ HsEventJournalStorage >> initialize [
 	self initEventStream 
 ]
 
+{ #category : 'testing' }
+HsEventJournalStorage >> isConnected [
+	^ self eventStream stick isConnected
+]
+
 { #category : 'accessing' }
 HsEventJournalStorage >> lastEventVersion [
 	^ self eventStream last

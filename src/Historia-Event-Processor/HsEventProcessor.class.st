@@ -127,6 +127,11 @@ HsEventProcessor >> shouldKeepProcessing: anObject [
 	shouldKeepProcessing := anObject
 ]
 
+{ #category : 'utilities' }
+HsEventProcessor >> sleep: milliseconds [
+	(Delay forMilliseconds: milliseconds) wait
+]
+
 { #category : 'accessing' }
 HsEventProcessor >> spaceId [
 
@@ -170,7 +175,7 @@ HsEventProcessor >> waitEmptyFor: totalMilliseconds interval: interalMillisecond
 	leftMilliseconds := totalMilliseconds.
 	result := self isEmpty.
 	result ifFalse: [
-		(Delay forMilliseconds: interalMilliseconds) wait.
+		self sleep: interalMilliseconds.
 		^ self
 			  waitEmptyFor: (totalMilliseconds - interalMilliseconds) abs
 			  interval: interalMilliseconds ].

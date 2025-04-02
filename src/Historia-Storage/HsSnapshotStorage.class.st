@@ -155,6 +155,7 @@ HsSnapshotStorage >> snapshotAt: snapshotVersion put: domainModels [
 HsSnapshotStorage >> snapshotVersionsReversedFrom: version limit: limit [
 	| endPos startPos |
 	endPos := self stick endpoint lPosBackward: self versionsListName value: version maxlen: nil.
+	endPos ifNil: [ ^#() ].
 	startPos := (endPos - limit + 1) max: 0.
 	^ (self stick endpoint lRange: self versionsListName start: startPos end: endPos) reversed 
 ]

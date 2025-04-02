@@ -57,8 +57,14 @@ HsEventPusher >> initWithModelSpace: aModelSpace [
 	settings shouldAutoStartEventPusher ifTrue: [ self start ]
 ]
 
+{ #category : 'testing' }
+HsEventPusher >> isConnected [
+	^ self eventJournalStorage isConnected 
+]
+
 { #category : 'actions' }
 HsEventPusher >> process [
+	self isConnected ifFalse: [ ^ self sleep: 100 ].
 	self push
 ]
 
