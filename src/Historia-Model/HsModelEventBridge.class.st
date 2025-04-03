@@ -1,5 +1,5 @@
 Class {
-	#name : 'HsAnnouncingModelEventSink',
+	#name : 'HsModelEventBridge',
 	#superclass : 'HsModelEventSink',
 	#instVars : [
 		'announcer'
@@ -9,28 +9,28 @@ Class {
 }
 
 { #category : 'accessing' }
-HsAnnouncingModelEventSink >> announcer [
+HsModelEventBridge >> announcer [
 
 	^ announcer ifNil: [ announcer := Announcer new ]
 ]
 
 { #category : 'accessing' }
-HsAnnouncingModelEventSink >> announcer: anObject [
+HsModelEventBridge >> announcer: anObject [
 
 	announcer := anObject
 ]
 
 { #category : 'announcements' }
-HsAnnouncingModelEventSink >> eventAnnouncedDo: aOneArgBlock [
+HsModelEventBridge >> eventAnnouncedDo: aOneArgBlock [
 	self announcer when: HsEventAnnouncement do: aOneArgBlock for: self
 ]
 
 { #category : 'events' }
-HsAnnouncingModelEventSink >> handleSinked: anEvent [
+HsModelEventBridge >> handleSinked: anEvent [
 	self announcer announce: anEvent 
 ]
 
 { #category : 'announcements' }
-HsAnnouncingModelEventSink >> notificationAnnouncedDo: aOneArgBlock [
+HsModelEventBridge >> notificationAnnouncedDo: aOneArgBlock [
 	self announcer when: HsNotificationAnnouncement do: aOneArgBlock for: self
 ]
