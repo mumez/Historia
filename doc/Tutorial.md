@@ -304,4 +304,133 @@ modelSpace withdraw: 30 at: '00001'.
 modelSpace getBalanceAt: '00001'. "-> returns 70"
 ```
 
-## Replay back events and Snapshotting
+## Retrieving Saved Events
+
+In this section, we explain how to retrieve events stored in the underlying repository and how to efficiently manage large numbers of events in real-world applications.
+
+### Retrieving All Events
+
+Each event is stored in the underlying Redis stream asynchronously when you save a model in a `ModelSpace`. You can retrieve all saved events using the `EventJournalStorage`:
+
+```Smalltalk
+modelSpace eventJournalStorage allEvents.
+```
+
+#### Important Notes:
+
+- **Performance Considerations**: Retrieving all events is not practical in real-world applications because the number of events can grow significantly over time.
+- **Use Case**: This method is useful for debugging or analyzing the entire event history but should be avoided for routine operations.
+
+---
+
+### Retrieving Recent Events
+
+To retrieve only the most recent events, you can use the `eventVersionsReversedFromLast:` method. This method fetches a specified number of events in reverse order, starting from the most recent event.
+
+```Smalltalk
+modelSpace eventVersionsReversedFromLast: 5.
+```
+
+#### Explanation:
+
+- **Efficient Retrieval**: This method is more efficient than retrieving all events, especially when you only need the latest changes.
+- **Use Case**: This is useful for scenarios like displaying recent activity or debugging the latest state changes.
+
+---
+
+### Replaying Events
+
+You can replay events to restore the state of the `ModelSpace` to a specific point in time. This is particularly useful for auditing or debugging purposes.
+
+#### Example:
+
+```Smalltalk
+modelSpace replayFrom: fromEventVersionId to: toEventVersionId.
+```
+
+#### Performance Considerations:
+
+- Replaying all past events can be slow if the number of events is very large.
+- To optimize performance, consider using snapshots (explained in the next section) to reduce the number of events that need to be replayed.
+
+---
+
+## Snapshotting Model Space
+
+Snapshots allow you to save the state of a `ModelSpace` at a specific point in time. By using snapshots, you can avoid replaying all past events, which improves performance when restoring the state of the `ModelSpace`.
+
+### Saving a Snapshot
+
+To save a snapshot of the current state of the `ModelSpace`, use the `saveSnapshot` method:
+
+```Smalltalk
+modelSpace saveSnapshot.
+```
+
+#### Explanation:
+
+- **Purpose**: A snapshot acts as a checkpoint, capturing the state of all models in the `ModelSpace` at a specific point in time.
+- **Use Case**: Snapshots are useful for reducing the time required to restore the state of the `ModelSpace`.
+
+---
+
+### Listing Snapshot Versions
+
+You can list all available snapshot versions using the following method:
+
+```Smalltalk
+modelSpace snapshotStorage listSnapshotVersions.
+```
+
+#### Better Alternative:
+
+Instead of listing all snapshots, you can retrieve only the most recent ones using `snapshotVersionsReversedFromLast:`:
+
+```Smalltalk
+modelSpace snapshotVersionsReversedFromLast: 5.
+```
+
+#### Explanation:
+
+- **Efficient Retrieval**: This method is more efficient and practical, especially when there are many snapshots.
+- **Use Case**: Useful for quickly identifying the latest snapshots for restoration.
+
+---
+
+### Loading a Snapshot
+
+To restore the state of the `ModelSpace` from a specific snapshot, use the `loadSnapshot:` method:
+
+```Smalltalk
+modelSpace loadSnapshot: snapshotVersion.
+```
+
+#### Explanation:
+
+- **Restoration**: This method restores the state of the `ModelSpace` to the point when the snapshot was created.
+- **Use Case**: Useful for quickly recovering the state of the application after a failure or for testing purposes.
+
+---
+
+### Loading a Snapshot and Replaying Events
+
+If you need to restore the state of the `ModelSpace` to a specific point in time after a snapshot, you can load the snapshot and replay only the events that occurred after the snapshot:
+
+```Smalltalk
+modelSpace loadSnapshot: snapshotVersion replayTo: toEventVersionId.
+```
+
+#### Explanation:
+
+- **Optimized Replay**: By combining snapshots and event replay, you can efficiently restore the state without replaying all past events.
+- **Use Case**: Useful for scenarios where you need to restore the state to a specific event version for auditing or debugging.
+
+---
+
+### Summary of Snapshotting
+
+1. **Save Snapshots Regularly**: Use `saveSnapshot` to create checkpoints at regular intervals.
+2. **Efficient Restoration**: Use `loadSnapshot:` to restore the state quickly without replaying all events.
+3. **Combine Snapshots and Events**: Use `loadSnapshot:replayTo:` to restore the state to a specific point in time efficiently.
+
+By using snapshots and event replay together, you can manage the state of your `ModelSpace` effectively, even in applications with a large number of events.
