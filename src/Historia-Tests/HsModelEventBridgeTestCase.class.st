@@ -1,16 +1,16 @@
 Class {
-	#name : 'HsAnnouncingModelEventSinkTestCase',
+	#name : 'HsModelEventBridgeTestCase',
 	#superclass : 'HsBaseTestCase',
 	#category : 'Historia-Tests',
 	#package : 'Historia-Tests'
 }
 
 { #category : 'tests' }
-HsAnnouncingModelEventSinkTestCase >> testEventNotifications [
+HsModelEventBridgeTestCase >> testEventNotifications [
 	| spaceId modelSpace vmodel modelSpace2 announcer events |
-	spaceId := 'test-amesEventNotifications'.
+	spaceId := 'test-mebEventNotifications'.
 	modelSpace := HsModelSpace spaceId: spaceId.
-	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	modelSpace2 := HsModelEventBridge spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
@@ -37,11 +37,11 @@ HsAnnouncingModelEventSinkTestCase >> testEventNotifications [
 ]
 
 { #category : 'tests' }
-HsAnnouncingModelEventSinkTestCase >> testNotificationsWithArguments [
+HsModelEventBridgeTestCase >> testNotificationsWithArguments [
 	| spaceId modelSpace vmodel modelSpace2 announcer events afterAll args |
-	spaceId := 'test-amesNotificationsWithArguments'.
+	spaceId := 'test-mebNotificationsWithArguments'.
 	modelSpace := HsModelSpace spaceId: spaceId.
-	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	modelSpace2 := HsModelEventBridge spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
@@ -75,11 +75,11 @@ HsAnnouncingModelEventSinkTestCase >> testNotificationsWithArguments [
 ]
 
 { #category : 'tests' }
-HsAnnouncingModelEventSinkTestCase >> testSimpleNotifications [
+HsModelEventBridgeTestCase >> testSimpleNotifications [
 	| spaceId modelSpace vmodel modelSpace2 announcer events afterAll|
-	spaceId := 'test-amesSimpleNotifications'.
+	spaceId := 'test-mebSimpleNotifications'.
 	modelSpace := HsModelSpace spaceId: spaceId.
-	modelSpace2 := HsAnnouncingModelEventSink spaceId: spaceId.
+	modelSpace2 := HsModelEventBridge spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
 	modelSpace putModel: (HsValueModel id: 'val-1').
 	vmodel := modelSpace modelAt: 'val-1'.
