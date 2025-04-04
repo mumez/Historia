@@ -12,15 +12,14 @@ HsModelTestCase >> testAddAndRemoveValuesOnModel [
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
-	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
+	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'.
 	vmodel := modelSpace modelAt: 'vals-1'.
 	1 to: 5 do: [ :idx | vmodel add: idx].
 	vmodel save.
 	modelSpace eventPusher start.
 	modelSpace eventPusher waitEmptyFor: 200.
 	
-	modelSpace2 putModel: (HsOrderedCollectionModel id: 'vals-1').
-	self assert: (modelSpace2 modelAt: 'vals-1') values asArray equals: #().
+	self assert: (modelSpace2 modelAt: 'vals-1') equals: nil.
 	modelSpace2 catchup.
 	
 	values2 := modelSpace2 modelAt: 'vals-1'.
@@ -44,15 +43,14 @@ HsModelTestCase >> testAddValuesOnModel [
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
-	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
+	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'.
 	vmodel := modelSpace modelAt: 'vals-1'.
 	1 to: 5 do: [ :idx | vmodel add: idx].
 	vmodel save.
 	modelSpace eventPusher start.
 	modelSpace eventPusher waitEmptyFor: 200.
+	self assert: (modelSpace2 modelAt: 'vals-1') equals: nil.
 	
-	modelSpace2 putModel: (HsOrderedCollectionModel id: 'vals-1').
-	self assert: (modelSpace2 modelAt: 'vals-1') values asArray equals: #().
 	modelSpace2 catchup.
 	modelSpace eventPusher waitEmptyFor: 200.
 	values2 := modelSpace2 modelAt: 'vals-1'.
@@ -68,7 +66,7 @@ HsModelTestCase >> testSaveLoadSnapshots [
 	modelSpace := HsModelSpace spaceId: spaceId.
 	modelSpace2 := HsModelSpace spaceId: spaceId.
 	self spaces: { modelSpace. modelSpace2 } do: [
-	modelSpace putModel: (HsValueModel id: 'val-1').
+	modelSpace putModelOf: HsValueModel id: 'val-1'.
 	vmodel := modelSpace modelAt: 'val-1'.
 	modelSpace eventPusher start.
 	self assert: modelSpace lastSnapshotVersion equals: nil.
