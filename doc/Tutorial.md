@@ -12,15 +12,15 @@ To develop an application using the framework, you need to define three main typ
 
 ### Defining the Model Class
 
-The `Model` class represents the main data structure of your application. In this example, we define a `HsBankAccount` model to represent a bank account.
+The `Model` class represents the main data structure of your application. In this example, we define a `HtBankAccount` model to represent a bank account.
 
 ```Smalltalk
-HsModel << #HsBankAccount
+HtModel << #HtBankAccount
     slots: { #name . #emailAddress . #balance };
     package: 'Historia-Examples-Bank'
 ```
 
-- `HsModel` is an abstract class provided by the framework for defining models.
+- `HtModel` is an abstract class provided by the framework for defining models.
 - The `slots` define the attributes of the model. Here, we define `name`, `emailAddress`, and `balance` as the attributes of the bank account.
 
 Please add plain accessor(getter/setter) methods for `name`, `emailAddress`. For `balance`, we only need the `balance` getter, because we will add a mutation method for `balance` later.
@@ -39,32 +39,32 @@ initialize
 All changes to the model are performed through events. Each type of mutation requires a corresponding event class. For example, to handle changes to the bank account balance, we define an event class:
 
 ```Smalltalk
-HsValueChanged << #HsBankAccountBalanceChanged
+HtValueChanged << #HtBankAccountBalanceChanged
     slots: {};
     package: 'Historia-Examples-Bank'
 ```
 
-- `HsValueChanged` is a base class for events that represent changes to a model's value.
+- `HtValueChanged` is a base class for events that represent changes to a model's value.
 - The `slots` can be used to define additional data required for the event. In most cases, no additional data is needed, because superclass already defines slots for holding typical event values such as context, arguments, and user-id.
 
 ### Defining the ModelSpace (Aggregation)
 
-The `ModelSpace` class is responsible for managing the lifecycle of models, including saving snapshots and replaying events. Here, we define a `HsBankAccountSpace` to manage `HsBankAccount` models.
+The `ModelSpace` class is responsible for managing the lifecycle of models, including saving snapshots and replaying events. Here, we define a `HtBankAccountSpace` to manage `HtBankAccount` models.
 
 ```Smalltalk
-HsModelSpace << #HsBankAccountSpace
+HtModelSpace << #HtBankAccountSpace
     slots: {};
     package: 'Historia-Examples-Bank'
 ```
 
-- `HsModelSpace` is a base class for managing models.
+- `HtModelSpace` is a base class for managing models.
 - The `slots` can be used to define additional attributes or dependencies for the `ModelSpace`.
 
 ### Summary of Key Classes
 
-- **Model**: Represents the structure of your data (e.g., `HsBankAccount`).
-- **Event**: Represents changes to the model (e.g., `HsBankAccountBalanceChanged`).
-- **ModelSpace**: Manages the state and lifecycle of models (e.g., `HsBankAccountSpace`).
+- **Model**: Represents the structure of your data (e.g., `HtBankAccount`).
+- **Event**: Represents changes to the model (e.g., `HtBankAccountBalanceChanged`).
+- **ModelSpace**: Manages the state and lifecycle of models (e.g., `HtBankAccountSpace`).
 
 Once the key classes are defined, the next step is to implement mutations. Mutations are the actions that modify the state of the model. These are performed by creating and applying events.
 
@@ -74,18 +74,18 @@ Mutations are the actions that modify the state of the model. In this framework,
 
 ### Step 1: Define a Mutation Method in the Model
 
-To modify the `balance` attribute of the `HsBankAccount` model, we define a mutation method called `mutateBalanceChange:`. This method creates an event to record the change and applies it to the model.
+To modify the `balance` attribute of the `HtBankAccount` model, we define a mutation method called `mutateBalanceChange:`. This method creates an event to record the change and applies it to the model.
 
 ```Smalltalk
 mutateBalanceChange: newBalanceChange
-    self mutate: HsBankAccountBalanceChanged using: [ :ev |
+    self mutate: HtBankAccountBalanceChanged using: [ :ev |
         ev value: newBalanceChange ]
 ```
 
 #### Key Points:
 
 1. **No Direct Assignment**: Unlike a typical setter method, this method does not directly assign a value to the `balance` attribute.
-2. **Event Creation**: The `mutate:using:` method is used to create an event (`HsBankAccountBalanceChanged`) and record the change.
+2. **Event Creation**: The `mutate:using:` method is used to create an event (`HtBankAccountBalanceChanged`) and record the change.
 3. **Event Configuration**: The block `[ :ev | ev value: newBalanceChange ]` sets the value of the event to the new balance change.
 
 This ensures that the mutation is recorded as an event, making it possible to track and replay changes.
@@ -94,7 +94,7 @@ This ensures that the mutation is recorded as an event, making it possible to tr
 
 ### Step 2: Define an Apply Method in the Event Class
 
-The next step is to define how the event should be applied to the model. This is done by implementing the `applyTo:` method in the `HsBankAccountBalanceChanged` event class.
+The next step is to define how the event should be applied to the model. This is done by implementing the `applyTo:` method in the `HtBankAccountBalanceChanged` event class.
 
 ```Smalltalk
 applyTo: target
@@ -103,7 +103,7 @@ applyTo: target
 
 #### Explanation:
 
-- The `applyTo:` method is called by the framework to apply the event to the target model (`HsBankAccount` in this case).
+- The `applyTo:` method is called by the framework to apply the event to the target model (`HtBankAccount` in this case).
 - The `self value` retrieves the value stored in the event (e.g., the balance change amount).
 - The `applyBalanceChange:` method is then called on the target model to update its state.
 
@@ -111,7 +111,7 @@ applyTo: target
 
 ### Step 3: Define the Apply Method in the Model
 
-Finally, we define the `applyBalanceChange:` method in the `HsBankAccount` model. This method updates the `balance` attribute based on the value provided by the event.
+Finally, we define the `applyBalanceChange:` method in the `HtBankAccount` model. This method updates the `balance` attribute based on the value provided by the event.
 
 ```Smalltalk
 applyBalanceChange: newBalanceChange
@@ -137,7 +137,7 @@ Now you are done implementing the `balance` mutation. You can proceed to explore
 
 ## Registering BankAccount Domain Class to ModelSpace
 
-In this section, we will register the `HsBankAccount` domain model to the `HsBankAccountSpace`. This step is essential because the `ModelSpace` is responsible for managing the lifecycle of models, including storing, retrieving, and replaying events.
+In this section, we will register the `HtBankAccount` domain model to the `HtBankAccountSpace`. This step is essential because the `ModelSpace` is responsible for managing the lifecycle of models, including storing, retrieving, and replaying events.
 
 ### What is a ModelSpace?
 
@@ -154,7 +154,7 @@ Each `ModelSpace` is identified by a unique `spaceId`, which allows you to creat
 To register a model instance (e.g., a bank account) to a `ModelSpace`, follow these steps:
 
 1. **Create a ModelSpace**: Use the `spaceId:` method to create a new `ModelSpace` instance.
-2. **Create a Model Instance**: Instantiate the `HsBankAccount` model and set its attributes.
+2. **Create a Model Instance**: Instantiate the `HtBankAccount` model and set its attributes.
 3. **Register the Model**: Use the `putModel:` method to add the model to the `ModelSpace`.
 
 Here is an example:
@@ -162,10 +162,10 @@ Here is an example:
 ```Smalltalk
 "Step 1: Create a ModelSpace"
 spaceId := 'bank-account-app-1'.
-modelSpace := HsBankAccountSpace spaceId: spaceId.
+modelSpace := HtBankAccountSpace spaceId: spaceId.
 
 "Step 2: Create a BankAccount model instance"
-bankAccount1 := HsBankAccount id: '00001'.
+bankAccount1 := HtBankAccount id: '00001'.
 bankAccount1 name: 'John Smith'; emailAddress: 'js@example.com'.
 
 "Step 3: Register the model to the ModelSpace"
@@ -178,14 +178,14 @@ modelSpace modelAt: '00001'. "-> returns bankAccount1"
 ### Important Notes
 
 - **Model IDs**: Each model must have a unique ID within the `ModelSpace`. This ID is used to identify and retrieve the model.
-- **Event-Driven Registration**: In a typical application, model registration is often performed through an event (e.g., `HsBankAccountCreated`). For simplicity, this example omits the event-based registration process.
+- **Event-Driven Registration**: In a typical application, model registration is often performed through an event (e.g., `HtBankAccountCreated`). For simplicity, this example omits the event-based registration process.
 - **Persistence**: The `ModelSpace` ensures that all registered models and their events are stored in a persistent repository, allowing for replay and recovery.
 
 By registering models to a `ModelSpace`, you gain full control over their lifecycle and state, enabling powerful features such as event replay and auditing.
 
 ## Defining Domain Actions to ModelSpace
 
-In this section, we will define domain-specific actions for the `HsBankAccountSpace`. These actions allow you to interact with the `ModelSpace` to perform operations such as retrieving a balance, depositing money, and withdrawing money for specific accounts.
+In this section, we will define domain-specific actions for the `HtBankAccountSpace`. These actions allow you to interact with the `ModelSpace` to perform operations such as retrieving a balance, depositing money, and withdrawing money for specific accounts.
 
 ### Why Add Domain Actions?
 
@@ -197,7 +197,7 @@ The `ModelSpace` provides a generic mechanism for managing models, but domain-sp
 
 ### Actions to Implement
 
-We will implement the following actions in the `HsBankAccountSpace`:
+We will implement the following actions in the `HtBankAccountSpace`:
 
 1. **Retrieving a Balance**: Get the current balance of a specific account.
 2. **Depositing Money**: Add a specified amount to an account's balance.
@@ -283,7 +283,7 @@ modelSpace withdraw: 50 at: '00001'. "Withdraws 50 from account '00001'"
 
 ### Important Notes
 
-1. **Event Persistence**: The `save:` method ensures that pending events (in this case, HsBankAccountBalanceChanged instances) are stored in the underlying repository. This allows the framework to replay events and restore the state of the model at any point in time.
+1. **Event Persistence**: The `save:` method ensures that pending events (in this case, HtBankAccountBalanceChanged instances) are stored in the underlying repository. This allows the framework to replay events and restore the state of the model at any point in time.
 2. **Consistency**: By centralizing the logic for deposits and withdrawals in the `ModelSpace`, you ensure that all operations are consistent and follow the same rules.
 3. **Error Handling**: In a real-world application, you should add error handling to check for conditions such as insufficient funds during withdrawals.
 
@@ -313,8 +313,10 @@ In this section, we explain how to retrieve events stored in the underlying repo
 Each event is stored in the underlying Redis stream asynchronously when you save a model in a `ModelSpace`. You can retrieve all saved events using the `EventJournalStorage`:
 
 ```Smalltalk
-modelSpace eventJournalStorage allEvents.
+modelSpace eventJournalStorage allEvents. "print it"
 ```
+
+You will see two events because you sent `#deposit:at:` and `#withdraw:at:` to the bank account `ModelSpace`.
 
 #### Important Notes:
 
@@ -338,23 +340,6 @@ modelSpace eventVersionsReversedFromLast: 5.
 
 ---
 
-### Replaying Events
-
-You can replay events to restore the state of the `ModelSpace` to a specific point in time. This is particularly useful for auditing or debugging purposes.
-
-#### Example:
-
-```Smalltalk
-modelSpace replayFrom: fromEventVersionId to: toEventVersionId.
-```
-
-#### Performance Considerations:
-
-- Replaying all past events can be slow if the number of events is very large.
-- To optimize performance, consider using snapshots (explained in the next section) to reduce the number of events that need to be replayed.
-
----
-
 ## Snapshotting Model Space
 
 Snapshots allow you to save the state of a `ModelSpace` at a specific point in time. By using snapshots, you can avoid replaying all past events, which improves performance when restoring the state of the `ModelSpace`.
@@ -367,33 +352,26 @@ To save a snapshot of the current state of the `ModelSpace`, use the `saveSnapsh
 modelSpace saveSnapshot.
 ```
 
-#### Explanation:
-
-- **Purpose**: A snapshot acts as a checkpoint, capturing the state of all models in the `ModelSpace` at a specific point in time.
-- **Use Case**: Snapshots are useful for reducing the time required to restore the state of the `ModelSpace`.
-
----
-
-### Listing Snapshot Versions
-
-You can list all available snapshot versions using the following method:
+Try taking another snapshot after sending `#deposit:at:`.
 
 ```Smalltalk
-modelSpace snapshotStorage listSnapshotVersions.
+modelSpace deposit: 100 at: '00001'.
+modelSpace saveSnapshot.
 ```
 
-#### Better Alternative:
+Now try getting all the snapshot versions using the following method:
 
-Instead of listing all snapshots, you can retrieve only the most recent ones using `snapshotVersionsReversedFromLast:`:
+```Smalltalk
+modelSpace snapshotStorage listSnapshotVersions. "inspect it"
+```
+
+Of course, you can see two snapshot versions!
+
+Instead of listing all snapshots, it is better to retrieve only the most recent ones using `snapshotVersionsReversedFromLast:`:
 
 ```Smalltalk
 modelSpace snapshotVersionsReversedFromLast: 5.
 ```
-
-#### Explanation:
-
-- **Efficient Retrieval**: This method is more efficient and practical, especially when there are many snapshots.
-- **Use Case**: Useful for quickly identifying the latest snapshots for restoration.
 
 ---
 
@@ -404,11 +382,6 @@ To restore the state of the `ModelSpace` from a specific snapshot, use the `load
 ```Smalltalk
 modelSpace loadSnapshot: snapshotVersion.
 ```
-
-#### Explanation:
-
-- **Restoration**: This method restores the state of the `ModelSpace` to the point when the snapshot was created.
-- **Use Case**: Useful for quickly recovering the state of the application after a failure or for testing purposes.
 
 ---
 
@@ -426,11 +399,3 @@ modelSpace loadSnapshot: snapshotVersion replayTo: toEventVersionId.
 - **Use Case**: Useful for scenarios where you need to restore the state to a specific event version for auditing or debugging.
 
 ---
-
-### Summary of Snapshotting
-
-1. **Save Snapshots Regularly**: Use `saveSnapshot` to create checkpoints at regular intervals.
-2. **Efficient Restoration**: Use `loadSnapshot:` to restore the state quickly without replaying all events.
-3. **Combine Snapshots and Events**: Use `loadSnapshot:replayTo:` to restore the state to a specific point in time efficiently.
-
-By using snapshots and event replay together, you can manage the state of your `ModelSpace` effectively, even in applications with a large number of events.
