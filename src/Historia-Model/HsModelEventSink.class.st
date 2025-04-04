@@ -47,7 +47,7 @@ HsModelEventSink >> deleteModel: aModel [
 	self deleteModelAt: aModel id
 ]
 
-{ #category : 'accessing-model' }
+{ #category : 'accessing-models' }
 HsModelEventSink >> deleteModelAt: modelId [
 	^ self models removeKey: modelId ifAbsent: [  ]
 ]
@@ -81,6 +81,16 @@ HsModelEventSink >> eventPuller: anObject [
 { #category : 'factory' }
 HsModelEventSink >> eventPullerClass [
 	^ HsEventPuller
+]
+
+{ #category : 'accessing-events' }
+HsModelEventSink >> eventVersionsReversedFrom: version limit: limit [
+	^ self eventJournalStorage eventVersionsReversedFrom: version limit: limit
+]
+
+{ #category : 'accessing-events' }
+HsModelEventSink >> eventVersionsReversedFromLast: limit [
+	^ self eventJournalStorage eventVersionsReversedFromLast: limit
 ]
 
 { #category : 'executing-events' }
@@ -185,27 +195,27 @@ HsModelEventSink >> logger [
 	^ HsLogger default
 ]
 
-{ #category : 'accessing-model' }
+{ #category : 'accessing-models' }
 HsModelEventSink >> modelAt: modelId [
 	^ self modelAt: modelId ifAbsent: [ ] 
 ]
 
-{ #category : 'accessing-model' }
+{ #category : 'accessing-models' }
 HsModelEventSink >> modelAt: modelId ifAbsent: aBlock [
 	^ self models at: modelId ifAbsent: aBlock 
 ]
 
-{ #category : 'accessing-model' }
+{ #category : 'accessing-models' }
 HsModelEventSink >> modelAt: modelId put: aModel [
 	^ self models at: modelId put: aModel 
 ]
 
-{ #category : 'accessing-model' }
+{ #category : 'accessing-models' }
 HsModelEventSink >> models [
 	^ models ifNil: [ models := Dictionary new ]
 ]
 
-{ #category : 'accessing-model' }
+{ #category : 'accessing-models' }
 HsModelEventSink >> models: anObject [
 
 	models := anObject

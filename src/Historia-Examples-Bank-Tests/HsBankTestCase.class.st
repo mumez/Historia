@@ -178,7 +178,7 @@ HsBankTestCase >> testAccountsTransferNotified [
 	| spaceId bankApp accountId1 acc1 accountId2 acc2 notifiedApp events transferedNotices transferedNotice |
 	spaceId := 'test-baTransferNotified'.
 	bankApp := HsBankAccountSpace spaceId: spaceId.
-	notifiedApp := HsAnnouncingModelEventSink spaceId: spaceId.
+	notifiedApp := HsModelEventBridge spaceId: spaceId.
 	events := OrderedCollection new.
 	transferedNotices := OrderedCollection new.
 	notifiedApp 

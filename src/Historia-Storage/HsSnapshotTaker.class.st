@@ -21,10 +21,8 @@ HsSnapshotTaker class >> on: aModelSpace [
 
 { #category : 'actions' }
 HsSnapshotTaker >> basicTake: possibleSnapshotVersion [
-	| snapshotVersion snapshotTimestampAndData |
-	snapshotVersion := possibleSnapshotVersion
-		               ifNil: [ RsStreamMessageId idWithAutoSequence: 0 ].
-	snapshotTimestampAndData := self modelSpace saveSnapshot: snapshotVersion.
+	| snapshotTimestampAndData |
+	snapshotTimestampAndData := self modelSpace saveSnapshot: possibleSnapshotVersion.
 	self lastSnapshotVersion: snapshotTimestampAndData first
 ]
 
@@ -140,12 +138,6 @@ HsSnapshotTaker >> take: possibleSnapshotVersion [
 			self initEventCount.
 			self basicTake: possibleSnapshotVersion]
 				ensure: [self isBusy: false]]
-]
-
-{ #category : 'actions' }
-HsSnapshotTaker >> takeFirst [
-	self basicTake: nil.
-	^ self lastSnapshotVersion
 ]
 
 { #category : 'actions' }

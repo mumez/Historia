@@ -53,6 +53,11 @@ HsEventPuller >> initPoller [
 	poller := nil
 ]
 
+{ #category : 'testing' }
+HsEventPuller >> isConnected [
+	^ self eventStream stick isConnected 
+]
+
 { #category : 'running' }
 HsEventPuller >> kill [
 	super kill.
@@ -99,6 +104,7 @@ HsEventPuller >> printOn: aStream [
 
 { #category : 'actions' }
 HsEventPuller >> process [
+	self isConnected ifFalse: [ ^ self sleep: 100 ].
 	self processPulledEvent
 ]
 
