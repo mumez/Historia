@@ -24,6 +24,34 @@ Metacello new
   load.
 ```
 
+## Quick example
+
+```Smalltalk
+spaceId := 'sample-space'.
+
+"Step 1: Create a ModelSpace for managing models"
+modelSpace := HsModelSpace spaceId: spaceId.
+
+"Step 2: Register a Model (In a real application, you would register a domain-specific model. Here, we use a generic HsOrderedCollectionModel for demonstration purposes)"
+modelSpace putModelOf: HsOrderedCollectionModel id: 'numbers'.
+vmodel := modelSpace modelAt: 'numbers'.
+
+"Step 3: Perform operations on the model (e.g., adding numbers to a collection)"
+1 to: 5 do: [ :idx | vmodel add: idx ].
+
+"Step 4: Save the model state (All mutations are recorded as events and saved to the event stream)"
+vmodel save.
+
+"Step 5: Create another ModelSpace for replaying events"
+modelSpace2 := HsModelSpace spaceId: spaceId.
+
+"Step 6: Catch up to the current state by replaying mutation events"
+modelSpace2 catchup.
+
+"Step 7: Print the model state (You may need to wait briefly for the events to propagate)"
+(modelSpace2 modelAt: 'numbers') values. "-> an OrderedCollection(1 2 3 4 5)"
+```
+
 ## How to use the framework
 
 Please see the [Tutorial](./doc/Tutorial.md)
