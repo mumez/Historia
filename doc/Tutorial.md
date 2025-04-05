@@ -46,9 +46,7 @@ HsValueChanged << #HtBankAccountBalanceChanged
 - `HsValueChanged` is a base class for events that represent changes to a model's value.
 - The `slots` can be used to define additional data required for the event. In most cases, no additional data is needed, because superclass already defines slots for holding typical event values such as context, arguments, and user-id.
 
-After defining event class, you need to explicitly register it.
-Without this, event serializer/deserializer won't work.
-So please do it in Playground.
+After defining the event class, you must explicitly register it to ensure the event serializer and deserializer function correctly. Without registration, the framework cannot process the event. You can register the event in the Playground as follows:
 
 ```Smalltalk
 HtBankAccountBalanceChanged register
@@ -318,8 +316,7 @@ Because you just sent `#deposit:at:` and `#withdraw:at:` to the bank account `Mo
 
 The number of events can grow significantly over time.
 So retrieving all events is not practical in real-world applications.
-
-To retrieve only the most recent event versions, you can use the `eventVersionsReversedFromLast:` method. This returns the versions limit specified in the parameter. The order is the newest first.
+To retrieve the most recent event versions, use the `eventVersionsReversedFromLast:` method. This method returns a limited number of event versions, starting with the newest and working backward.
 
 ```Smalltalk
 modelSpace eventVersionsReversedFromLast: 5.
@@ -417,7 +414,7 @@ Let's try replaying. We can use `catchup`.
 modelSpace2 catchup.
 ```
 
-This methods automatically retrieve and replay events up to the latest version. It also use snapshot if available. If you need to restore the state of the `ModelSpace` to a specific point in time after a snapshot, the nearest snapshot is loaded and replay only the events that occurred after the snapshot.
+This method automatically retrieves and replays events up to the latest version. If a snapshot is available, it uses the snapshot to restore the state and replays only the events that occurred after the snapshot. This ensures efficient restoration of the `ModelSpace` to the desired state.
 
 Now you will get the result:
 
