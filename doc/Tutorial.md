@@ -15,23 +15,22 @@ To develop an application using the framework, you need to define three main typ
 The `Model` class represents the main data structure of your application. In this example, we define a `HtBankAccount` model to represent a bank account.
 
 ```Smalltalk
-HtModel << #HtBankAccount
-    slots: { #name . #emailAddress . #balance };
-    package: 'Historia-Examples-Bank'
+HsModel << #HtBankAccount
+    slots: { #name . #balance };
+    package: 'Historia-Examples-SimpleBank'
 ```
 
-- `HtModel` is an abstract class provided by the framework for defining models.
-- The `slots` define the attributes of the model. Here, we define `name`, `emailAddress`, and `balance` as the attributes of the bank account.
+- `HsModel` is an abstract class provided by the framework for defining models.
+- The `slots` define the attributes of the model. Here, we define `name` and `balance` as the attributes of the bank account.
 
-Please add plain accessor(getter/setter) methods for `name`, `emailAddress`. For `balance`, we only need the `balance` getter, because we will add a mutation method for `balance` later.
+Please add plain accessor(getter/setter) methods for `name`. For `balance`, we only need the getter, because we will add a mutation method for `balance` later.
 
 Also add initializer:
 
 ```Smalltalk
 initialize
-    name := ''.
-    emailAddress := '',
-	balance := 0.
+   name := ''.
+   balance := 0.
 ```
 
 ### Defining the Event Class
@@ -39,25 +38,33 @@ initialize
 All changes to the model are performed through events. Each type of mutation requires a corresponding event class. For example, to handle changes to the bank account balance, we define an event class:
 
 ```Smalltalk
-HtValueChanged << #HtBankAccountBalanceChanged
+HsValueChanged << #HtBankAccountBalanceChanged
     slots: {};
-    package: 'Historia-Examples-Bank'
+    package: 'Historia-Examples-SimpleBank'
 ```
 
-- `HtValueChanged` is a base class for events that represent changes to a model's value.
+- `HsValueChanged` is a base class for events that represent changes to a model's value.
 - The `slots` can be used to define additional data required for the event. In most cases, no additional data is needed, because superclass already defines slots for holding typical event values such as context, arguments, and user-id.
+
+After defining event class, you need to explicitly register it.
+Without this, event serializer/deserializer won't work.
+So please do it in Playground.
+
+```Smalltalk
+HtBankAccountBalanceChanged register
+```
 
 ### Defining the ModelSpace (Aggregation)
 
 The `ModelSpace` class is responsible for managing the lifecycle of models, including saving snapshots and replaying events. Here, we define a `HtBankAccountSpace` to manage `HtBankAccount` models.
 
 ```Smalltalk
-HtModelSpace << #HtBankAccountSpace
+HsModelSpace << #HtBankAccountSpace
     slots: {};
-    package: 'Historia-Examples-Bank'
+    package: 'Historia-Examples-SimpleBank'
 ```
 
-- `HtModelSpace` is a base class for managing models.
+- `HsModelSpace` is a base class for managing models.
 - The `slots` can be used to define additional attributes or dependencies for the `ModelSpace`.
 
 ### Summary of Key Classes
@@ -77,6 +84,7 @@ Mutations are the actions that modify the state of the model. In this framework,
 To modify the `balance` attribute of the `HtBankAccount` model, we define a mutation method called `mutateBalanceChange:`. This method creates an event to record the change and applies it to the model.
 
 ```Smalltalk
+(mutations)
 mutateBalanceChange: newBalanceChange
     self mutate: HtBankAccountBalanceChanged using: [ :ev |
         ev value: newBalanceChange ]
@@ -97,6 +105,7 @@ This ensures that the mutation is recorded as an event, making it possible to tr
 The next step is to define how the event should be applied to the model. This is done by implementing the `applyTo:` method in the `HtBankAccountBalanceChanged` event class.
 
 ```Smalltalk
+(applying)
 applyTo: target
     target applyBalanceChange: self value
 ```
@@ -114,6 +123,7 @@ applyTo: target
 Finally, we define the `applyBalanceChange:` method in the `HtBankAccount` model. This method updates the `balance` attribute based on the value provided by the event.
 
 ```Smalltalk
+(applying)
 applyBalanceChange: newBalanceChange
     balance := balance + newBalanceChange
 ```
@@ -157,7 +167,7 @@ To register a model instance (e.g., a bank account) to a `ModelSpace`, follow th
 2. **Create a Model Instance**: Instantiate the `HtBankAccount` model and set its attributes.
 3. **Register the Model**: Use the `putModel:` method to add the model to the `ModelSpace`.
 
-Here is an example:
+Here is an example for Playground:
 
 ```Smalltalk
 "Step 1: Create a ModelSpace"
@@ -166,7 +176,7 @@ modelSpace := HtBankAccountSpace spaceId: spaceId.
 
 "Step 2: Create a BankAccount model instance"
 bankAccount1 := HtBankAccount id: '00001'.
-bankAccount1 name: 'John Smith'; emailAddress: 'js@example.com'.
+bankAccount1 name: 'John Smith'.
 
 "Step 3: Register the model to the ModelSpace"
 modelSpace putModel: bankAccount1.
@@ -210,6 +220,7 @@ We will implement the following actions in the `HtBankAccountSpace`:
 To retrieve the balance of a specific account, we define the `getBalanceAt:` method. This method takes an account ID as input, retrieves the corresponding model from the `ModelSpace`, and returns its balance.
 
 ```Smalltalk
+(actions)
 getBalanceAt: accountId
     | acc |
     acc := self modelAt: accountId.
@@ -221,37 +232,24 @@ getBalanceAt: accountId
 1. **Retrieve the Model**: The `modelAt:` method fetches the model instance associated with the given `accountId`.
 2. **Access the Balance**: The `balance` attribute of the model is returned.
 
-**Example Usage**:
-
-```Smalltalk
-modelSpace getBalanceAt: '00001'. "-> returns the balance of account '00001'"
-```
-
----
-
 ### Depositing Money
 
 To deposit money into an account, we define the `deposit:at:` method. This method retrieves the account model, appends a balance change event, and saves the updated model.
 
 ```Smalltalk
+(actions)
 deposit: amount at: accountId
     | acc |
     acc := self modelAt: accountId.
-    acc appendBalanceChange: amount.
+    acc mutateBalanceChange: amount.
     self save: acc
 ```
 
 #### Explanation:
 
 1. **Retrieve the Model**: The `modelAt:` method fetches the account model.
-2. **Append a Balance Change**: The `appendBalanceChange:` method records the deposit as an event.
+2. **Mutate with a Balance Change**: The `mutateBalanceChange:` method records the deposit as an event.
 3. **Save the Model**: The `save:` method persists the updated model and its events to the repository.
-
-**Example Usage**:
-
-```Smalltalk
-modelSpace deposit: 100 at: '00001'. "Deposits 100 into account '00001'"
-```
 
 ---
 
@@ -260,24 +258,19 @@ modelSpace deposit: 100 at: '00001'. "Deposits 100 into account '00001'"
 To withdraw money from an account, we define the `withdraw:at:` method. This method is similar to the deposit method but appends a negative balance change to represent the withdrawal.
 
 ```Smalltalk
+(actions)
 withdraw: amount at: accountId
     | acc |
     acc := self modelAt: accountId.
-    acc appendBalanceChange: amount negated.
+    acc mutateBalanceChange: amount negated.
     self save: acc
 ```
 
 #### Explanation:
 
 1. **Retrieve the Model**: The `modelAt:` method fetches the account model.
-2. **Append a Negative Balance Change**: The `appendBalanceChange:` method records the withdrawal as an event by negating the amount.
+2. **Mutate with a Negative Balance Change**: The `mutateBalanceChange:` method records the withdrawal as an event by negating the amount.
 3. **Save the Model**: The `save:` method persists the updated model and its events to the repository.
-
-**Example Usage**:
-
-```Smalltalk
-modelSpace withdraw: 50 at: '00001'. "Withdraws 50 from account '00001'"
-```
 
 ---
 
@@ -288,8 +281,6 @@ modelSpace withdraw: 50 at: '00001'. "Withdraws 50 from account '00001'"
 3. **Error Handling**: In a real-world application, you should add error handling to check for conditions such as insufficient funds during withdrawals.
 
 ---
-
-### Example Workflow
 
 Here is an example of how these actions can be used together:
 
@@ -316,27 +307,29 @@ Each event is stored in the underlying Redis stream asynchronously when you save
 modelSpace eventJournalStorage allEvents. "print it"
 ```
 
-You will see two events because you sent `#deposit:at:` and `#withdraw:at:` to the bank account `ModelSpace`.
+You can see tow events such as:
 
-#### Important Notes:
+```
+an OrderedCollection([#1743860582365-0: valueChanged targetIds:#('00001')]
+[#1743860583851-0: valueChanged targetIds:#('00001')])
+```
 
-- **Performance Considerations**: Retrieving all events is not practical in real-world applications because the number of events can grow significantly over time.
-- **Use Case**: This method is useful for debugging or analyzing the entire event history but should be avoided for routine operations.
+Because you just sent `#deposit:at:` and `#withdraw:at:` to the bank account `ModelSpace`, two events are recorded.
 
----
+The number of events can grow significantly over time.
+So retrieving all events is not practical in real-world applications.
 
-### Retrieving Recent Events
-
-To retrieve only the most recent events, you can use the `eventVersionsReversedFromLast:` method. This method fetches a specified number of events in reverse order, starting from the most recent event.
+To retrieve only the most recent event versions, you can use the `eventVersionsReversedFromLast:` method. This returns the versions limit specified in the parameter. The order is the newest first.
 
 ```Smalltalk
 modelSpace eventVersionsReversedFromLast: 5.
 ```
 
-#### Explanation:
+You can get:
 
-- **Efficient Retrieval**: This method is more efficient than retrieving all events, especially when you only need the latest changes.
-- **Use Case**: This is useful for scenarios like displaying recent activity or debugging the latest state changes.
+```
+an OrderedCollection('1743860583851-0' '1743860582365-0')
+```
 
 ---
 
@@ -362,15 +355,23 @@ modelSpace saveSnapshot.
 Now try getting all the snapshot versions using the following method:
 
 ```Smalltalk
-modelSpace snapshotStorage listSnapshotVersions. "inspect it"
+modelSpace snapshotStorage listSnapshotVersions. "print it"
 ```
 
 Of course, you can see two snapshot versions!
 
-Instead of listing all snapshots, it is better to retrieve only the most recent ones using `snapshotVersionsReversedFromLast:`:
+```Smalltalk
+an OrderedCollection('1743861291851-0' '1743861348194-0')
+```
+
+You can also retrieve only the most recent ones using `snapshotVersionsReversedFromLast:`:
 
 ```Smalltalk
-modelSpace snapshotVersionsReversedFromLast: 5.
+modelSpace snapshotVersionsReversedFromLast: 2.
+```
+
+```Smalltalk
+an OrderedCollection('1743861348194-0' '1743861291851-0')
 ```
 
 ---
@@ -383,19 +384,43 @@ To restore the state of the `ModelSpace` from a specific snapshot, use the `load
 modelSpace loadSnapshot: snapshotVersion.
 ```
 
----
-
-### Loading a Snapshot and Replaying Events
-
-If you need to restore the state of the `ModelSpace` to a specific point in time after a snapshot, you can load the snapshot and replay only the events that occurred after the snapshot:
+Let's load the versions.
 
 ```Smalltalk
-modelSpace loadSnapshot: snapshotVersion replayTo: toEventVersionId.
+modelSpace loadSnapshot: '1743861291851-0'.
+modelSpace getBalanceAt: '00001'. "-> returns 70"
+
+modelSpace loadSnapshot: '1743861348194-0'.
+modelSpace getBalanceAt: '00001'. "-> returns 170"
 ```
 
-#### Explanation:
+## Restoring ModelSpace by event replay
 
-- **Optimized Replay**: By combining snapshots and event replay, you can efficiently restore the state without replaying all past events.
-- **Use Case**: Useful for scenarios where you need to restore the state to a specific event version for auditing or debugging.
+This time we will create another ModelSpace to demonstrate ModelSpace restoration via event replay.
 
----
+```Smalltalk
+modelSpace2 := HtBankAccountSpace spaceId: spaceId.
+bankAccount2 := HtBankAccount id: '00001'.
+bankAccount2 name: 'John Smith'.
+modelSpace2 putModel: bankAccount2.
+```
+
+Of course bankAccount2 is just initialized at this stage.
+
+```
+modelSpace2 getBalanceAt: '00001'. "-> returns 0"
+```
+
+Let's try replaying. We can use `catchup`.
+
+```
+modelSpace2 catchup.
+```
+
+This methods automatically retrieve and replay events up to the latest version. It also use snapshot if available. If you need to restore the state of the `ModelSpace` to a specific point in time after a snapshot, the nearest snapshot is loaded and replay only the events that occurred after the snapshot.
+
+Now you will get the result:
+
+```
+modelSpace2 getBalanceAt: '00001'. "-> returns 170"
+```
