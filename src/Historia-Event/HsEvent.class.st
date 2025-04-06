@@ -45,8 +45,7 @@ HsEvent class >> id: eventId data: eventData [
 { #category : 'class initialization' }
 HsEvent class >> initialize [
 	EventClasses := Dictionary new.
-	self register.
-	self allSubclassesDo: [ :each | each register ]
+	self registerAll
 ]
 
 { #category : 'instance creation' }
@@ -64,6 +63,13 @@ HsEvent class >> originatorId: originatorId targetId: targetId [
 { #category : 'registering' }
 HsEvent class >> register [
 	EventClasses at: self typeName put: self
+]
+
+{ #category : 'class initialization' }
+HsEvent class >> registerAll [
+	<script>
+	self register.
+	self allSubclassesDo: [ :each | each register ]
 ]
 
 { #category : 'accessing' }
