@@ -85,6 +85,11 @@ HsModel >> instanceCreated: aModelSpace initializing: initializerBlock [
 		initializerBlock value: ev ]
 ]
 
+{ #category : 'testing' }
+HsModel >> isHistoriaModel [
+	^ true
+]
+
 { #category : 'factory' }
 HsModel >> modelCreatedEventClass [
 	^ HsModelCreated

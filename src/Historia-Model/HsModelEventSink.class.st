@@ -113,6 +113,13 @@ HsModelEventSink >> executionContextClassAt: className ifAbsent: aBlock [
 ]
 
 { #category : 'private' }
+HsModelEventSink >> fixModelsAfterLoadingSnapshot [
+	models ifNil: [ ^ self ].
+	(models select: [ :each | each isHistoriaModel ]) do: [ :each |
+		each modelSpace: self ]
+]
+
+{ #category : 'private' }
 HsModelEventSink >> generateOriginatorId [
 	^ UUID new asString36
 ]
@@ -176,6 +183,7 @@ HsModelEventSink >> loadSnapshot: snapshotVersion [
 	snapArray := self snapshotStorage snapshotAt: snapshotVersion.
 	self lastLoadedSnapshotVersion: snapArray first.
 	self models: snapArray last.
+	self fixModelsAfterLoadingSnapshot.
 	^ true
 ]
 
