@@ -316,7 +316,7 @@ Because you just sent `#deposit:at:` and `#withdraw:at:` to the bank account `Mo
 
 The number of events can grow significantly over time.
 So retrieving all events is not practical in real-world applications.
-To retrieve the most recent event versions, use the `eventVersionsReversedFromLast:` method. This method returns a limited number of event versions, starting with the newest and working backward.
+To retrieve the most recent event versions, send the `#eventVersionsReversedFromLast:` message. This method returns a limited number of event versions, starting with the newest and working backward.
 
 ```Smalltalk
 modelSpace eventVersionsReversedFromLast: 5.
@@ -336,7 +336,7 @@ Snapshots allow you to save the state of a `ModelSpace` at a specific point in t
 
 ### Saving a Snapshot
 
-To save a snapshot of the current state of the `ModelSpace`, use the `saveSnapshot` method:
+To save a snapshot of the current state of the `ModelSpace`, send the `#saveSnapshot` message:
 
 ```Smalltalk
 modelSpace saveSnapshot.
@@ -361,7 +361,7 @@ Of course, you can see two snapshot versions!
 an OrderedCollection('1743861291851-0' '1743861348194-0')
 ```
 
-You can also retrieve only the most recent ones using `snapshotVersionsReversedFromLast:`:
+You can also retrieve only the most recent ones sending `#snapshotVersionsReversedFromLast:`:
 
 ```Smalltalk
 modelSpace snapshotVersionsReversedFromLast: 2.
@@ -375,7 +375,7 @@ an OrderedCollection('1743861348194-0' '1743861291851-0')
 
 ### Loading a Snapshot
 
-To restore the state of the `ModelSpace` from a specific snapshot, use the `loadSnapshot:` method:
+To restore the state of the `ModelSpace` from a specific snapshot, send the `#loadSnapshot:` message:
 
 ```Smalltalk
 modelSpace loadSnapshot: snapshotVersion.
@@ -408,7 +408,7 @@ Of course bankAccount2 is just initialized at this stage.
 modelSpace2 getBalanceAt: '00001'. "-> returns 0"
 ```
 
-Let's try replaying. We can use `catchup`.
+Let's try replaying. We can send `#catchup`.
 
 ```
 modelSpace2 catchup.
@@ -421,3 +421,20 @@ Now you will get the result:
 ```
 modelSpace2 getBalanceAt: '00001'. "-> returns 170"
 ```
+
+Moreover, `modelSpace2` will automatically synchronize with the latest state as new events are added.
+
+For example, try sending additional `#deposit:at:` messages to the original `modelSpace`:
+
+```Smalltalk
+modelSpace deposit: 10 at: '00001'.
+modelSpace deposit: 20 at: '00001'.
+```
+
+Now, send the `#getBalanceAt:` message to `modelSpace2`. You will notice that it reflects the updated state of the model, including the latest deposits.
+
+```Smalltalk
+modelSpace2 getBalanceAt: '00001'. "-> returns 200"
+```
+
+This automatic synchronization ensures that all ModelSpace instances stay up-to-date with the latest changes, making it useful for distributed systems where multiple components need to track the same state.
