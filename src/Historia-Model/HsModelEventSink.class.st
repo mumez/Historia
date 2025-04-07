@@ -36,6 +36,11 @@ HsModelEventSink >> catchup [
 	self setupFrom: snapVersion.
 ]
 
+{ #category : 'notifying' }
+HsModelEventSink >> defaultNotifierModel [
+	^ self modelAt: HsDefaultNotifierModel defaultId ifAbsentPut: [ HsDefaultNotifierModel on: self ]
+]
+
 { #category : 'defaults' }
 HsModelEventSink >> defaultSettings [
 	^ HsSettings defaultCopied
@@ -214,6 +219,11 @@ HsModelEventSink >> modelAt: modelId ifAbsent: aBlock [
 ]
 
 { #category : 'accessing-models' }
+HsModelEventSink >> modelAt: modelId ifAbsentPut: modelCreationBlock [
+	^ self models at: modelId ifAbsentPut: modelCreationBlock 
+]
+
+{ #category : 'accessing-models' }
 HsModelEventSink >> modelAt: modelId put: aModel [
 	^ self models at: modelId put: aModel 
 ]
@@ -227,6 +237,21 @@ HsModelEventSink >> models [
 HsModelEventSink >> models: anObject [
 
 	models := anObject
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> notify: notificationKind [
+	self defaultNotifierModel notify: notificationKind; save
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> notify: notificationKind using: aBlock [
+	self defaultNotifierModel notify: notificationKind using: aBlock; save
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> notify: notificationSymbol withArguments: notificationArgs [
+	self defaultNotifierModel notify: notificationSymbol withArguments: notificationArgs; save
 ]
 
 { #category : 'accessing' }
