@@ -298,6 +298,14 @@ HsModelEventSink >> putModelOf: modelClass id: modelId initializing: initializer
 	^ newModel
 ]
 
+{ #category : 'actions-model' }
+HsModelEventSink >> putModelOf: modelClass id: modelId withArguments: initializerDict [
+	^ self
+		  putModelOf: modelClass
+		  id: modelId
+		  initializing: [ :ev | ev mergeArgs: initializerDict asDictionary ]
+]
+
 { #category : 'releasing' }
 HsModelEventSink >> releaseStorages [
 	self eventPuller destroy.

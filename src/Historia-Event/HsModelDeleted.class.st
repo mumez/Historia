@@ -17,11 +17,11 @@ HsModelDeleted >> applyTo: targetModel [
 
 { #category : 'accessing' }
 HsModelDeleted >> modelId [
-	^ self argsAt: 'modelId'
+	^ self argsAt: '_modelId'
 ]
 
 { #category : 'accessing' }
 HsModelDeleted >> modelId: anId [
 
-	self argsAt: 'modelId' put: anId
+	self argsAt: '_modelId' put: anId
 ]

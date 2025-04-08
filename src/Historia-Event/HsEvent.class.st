@@ -101,6 +101,11 @@ HsEvent >> argsAt: key ifAbsent: aBlock [
 ]
 
 { #category : 'accessing' }
+HsEvent >> argsAt: key ifPresent: aBlock [
+	^ self arguments at: key ifPresent: aBlock
+]
+
+{ #category : 'accessing' }
 HsEvent >> argsAt: key put: value [
 	^ self arguments at: key put: value
 ]
@@ -214,6 +219,14 @@ HsEvent >> isReplayable [
 { #category : 'accessing' }
 HsEvent >> logger [
 	^ HsLogger default
+]
+
+{ #category : 'accessing' }
+HsEvent >> mergeArgs: moreArguments [
+	moreArguments keysAndValuesDo: [ :k :v | 
+		self argsAt: k put: v
+	].
+	^ self arguments
 ]
 
 { #category : 'accessing' }

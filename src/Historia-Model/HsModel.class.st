@@ -75,6 +75,14 @@ HsModel >> id: anObject [
 	id := anObject
 ]
 
+{ #category : 'initializing' }
+HsModel >> initWithArguments: initializerArguments [
+	initializerArguments keysAndValuesDo: [ :k :v |
+		[ self perform: k asSymbol asMutator with: v ]
+			on: MessageNotUnderstood
+			do: [ :ex | self logger warn: ex printString ] ]
+]
+
 { #category : 'callback' }
 HsModel >> instanceCreated: aModelSpace initializing: initializerBlock [
 	self modelSpace: aModelSpace.
@@ -88,6 +96,11 @@ HsModel >> instanceCreated: aModelSpace initializing: initializerBlock [
 { #category : 'testing' }
 HsModel >> isHistoriaModel [
 	^ true
+]
+
+{ #category : 'accessing' }
+HsModel >> logger [
+	^ HsLogger default
 ]
 
 { #category : 'factory' }
