@@ -10,21 +10,6 @@ HsBankAccountOpened class >> typeName [
 	^ #ba:accountOpened
 ]
 
-{ #category : 'applying' }
-HsBankAccountOpened >> applyTo: targetModel [
-	super applyTo: targetModel.
-	targetModel applyInitialize: self name emailAddress: self emailAddress
-]
-
-{ #category : 'private' }
-HsBankAccountOpened >> createInstanceOf: modelClass [
-	| inst |
-	inst := super createInstanceOf: modelClass.
-	inst name: self name.
-	inst emailAddress: self emailAddress.
-	^ inst
-]
-
 { #category : 'accessing' }
 HsBankAccountOpened >> emailAddress [
 	^ self argsAt: 'emailAddress'

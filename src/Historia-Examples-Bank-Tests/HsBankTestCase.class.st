@@ -166,6 +166,8 @@ HsBankTestCase >> testAccountsPropagated [
 	bankApp eventPusher waitEmptyFor: 100.
 	readBankApp catchup.
 	readAcc1 := readBankApp accountAt: accountId.
+	self assert: readAcc1 name equals: 'name-1'.
+	self assert: readAcc1 emailAddress equals: 'email-1'.
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
 	bankApp eventPusher waitEmptyFor: 100.
