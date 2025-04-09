@@ -162,31 +162,27 @@ Each `ModelSpace` is identified by a unique `spaceId`, which allows you to creat
 To register a model instance (e.g., a bank account) to a `ModelSpace`, follow these steps:
 
 1. **Create a ModelSpace**: Use the `spaceId:` method to create a new `ModelSpace` instance.
-2. **Create a Model Instance**: Instantiate the `HtBankAccount` model and set its attributes.
-3. **Register the Model**: Use the `putModel:` method to add the model to the `ModelSpace`.
+2. **Register the Model**: Use the `putModelOf:id:withArguments:` method to register the model to the `ModelSpace`.
 
 Here is an example for Playground:
 
 ```Smalltalk
 "Step 1: Create a ModelSpace"
 spaceId := 'bank-account-app-1'.
+accId := '00001'.
 modelSpace := HtBankAccountSpace spaceId: spaceId.
 
-"Step 2: Create a BankAccount model instance"
-bankAccount1 := HtBankAccount id: '00001'.
-bankAccount1 name: 'John Smith'.
-
-"Step 3: Register the model to the ModelSpace"
-modelSpace putModel: bankAccount1.
+"Step 2: Register the model to the ModelSpace"
+bankAccount1 := modelSpace putModelOf: HtBankAccount id: accId withArguments: {'name'->'John Smith'}.
 
 "Retrieve the model by its ID"
-modelSpace modelAt: '00001'. "-> returns bankAccount1"
+modelSpace modelAt: accId. "-> returns bankAccount1"
 ```
 
 ### Important Notes
 
 - **Model IDs**: Each model must have a unique ID within the `ModelSpace`. This ID is used to identify and retrieve the model.
-- **Event-Driven Registration**: In a typical application, model registration is often performed through an event (e.g., `HtBankAccountCreated`). For simplicity, this example omits the event-based registration process.
+- **Event-Driven Registration**: By using `putModelOf:id:withArguments:`, model registration is performed through an internal event (e.g., `HsModelCreated`). We will show you later, the registration process is replay-able.
 - **Persistence**: The `ModelSpace` ensures that all registered models and their events are stored in a persistent repository, allowing for replay and recovery.
 
 By registering models to a `ModelSpace`, you gain full control over their lifecycle and state, enabling powerful features such as event replay and auditing.
@@ -284,13 +280,13 @@ Here is an example of how these actions can be used together:
 
 ```Smalltalk
 "Step 1: Deposit money into the account"
-modelSpace deposit: 100 at: '00001'.
+modelSpace deposit: 100 at: accId.
 
 "Step 2: Withdraw money from the account"
-modelSpace withdraw: 30 at: '00001'.
+modelSpace withdraw: 30 at: accId.
 
 "Step 3: Retrieve the current balance"
-modelSpace getBalanceAt: '00001'. "-> returns 70"
+modelSpace getBalanceAt: accId. "-> 70"
 ```
 
 ## Retrieving Saved Events
@@ -308,13 +304,15 @@ modelSpace eventJournalStorage allEvents. "print it"
 You can see tow events such as:
 
 ```
-an OrderedCollection([#1743860582365-0: valueChanged targetIds:#('00001')]
-[#1743860583851-0: valueChanged targetIds:#('00001')])
+an OrderedCollection([#1744204795457-0: modelCreated targetIds:#('00001')]
+[#1744204795460-0: HtBankAccountBalanceChanged class targetIds:#('00001')]
+[#1744204797556-0: HtBankAccountBalanceChanged class targetIds:#('00001')])
 ```
 
-Because you just sent `#deposit:at:` and `#withdraw:at:` to the bank account `ModelSpace`, two events are recorded.
+Because you just sent `#deposit:at:` and `#withdraw:at:` to the bank account `ModelSpace`, two HtBankAccountBalanceChanged events are recorded.
+You can also see modelCreated event at first. It was recorded when the bank account was registered by `putModelOf:id:withArguments:`.
 
-The number of events can grow significantly over time.
+Generally, the number of events can grow significantly over time.
 So retrieving all events is not practical in real-world applications.
 To retrieve the most recent event versions, send the `#eventVersionsReversedFromLast:` message. This method returns a limited number of event versions, starting with the newest and working backward.
 
@@ -325,7 +323,7 @@ modelSpace eventVersionsReversedFromLast: 5.
 You can get:
 
 ```
-an OrderedCollection('1743860583851-0' '1743860582365-0')
+an OrderedCollection('1744204797556-0' '1744204795460-0' '1744204795457-0')
 ```
 
 ---
@@ -345,7 +343,7 @@ modelSpace saveSnapshot.
 Try taking another snapshot after sending `#deposit:at:`.
 
 ```Smalltalk
-modelSpace deposit: 100 at: '00001'.
+modelSpace deposit: 100 at: accId.
 modelSpace saveSnapshot.
 ```
 
@@ -358,17 +356,17 @@ modelSpace snapshotStorage listSnapshotVersions. "print it"
 Of course, you can see two snapshot versions!
 
 ```Smalltalk
-an OrderedCollection('1743861291851-0' '1743861348194-0')
+an OrderedCollection('1744205230917-0' '1744205252394-0')
 ```
 
 You can also retrieve only the most recent ones sending `#snapshotVersionsReversedFromLast:`:
 
 ```Smalltalk
-modelSpace snapshotVersionsReversedFromLast: 2.
+snapVersions := modelSpace snapshotVersionsReversedFromLast: 2.
 ```
 
 ```Smalltalk
-an OrderedCollection('1743861348194-0' '1743861291851-0')
+an OrderedCollection('1744205252394-0' '1744205230917-0')
 ```
 
 ---
@@ -384,11 +382,11 @@ modelSpace loadSnapshot: snapshotVersion.
 Let's load the versions.
 
 ```Smalltalk
-modelSpace loadSnapshot: '1743861291851-0'.
-modelSpace getBalanceAt: '00001'. "-> returns 70"
+modelSpace loadSnapshot: snapVersions last.
+modelSpace getBalanceAt: accId. "-> 70"
 
-modelSpace loadSnapshot: '1743861348194-0'.
-modelSpace getBalanceAt: '00001'. "-> returns 170"
+modelSpace loadSnapshot: snapVersions first.
+modelSpace getBalanceAt: accId. "-> 170"
 ```
 
 ## Restoring ModelSpace by event replay
@@ -397,44 +395,96 @@ This time we will create another ModelSpace to demonstrate ModelSpace restoratio
 
 ```Smalltalk
 modelSpace2 := HtBankAccountSpace spaceId: spaceId.
-bankAccount2 := HtBankAccount id: '00001'.
-bankAccount2 name: 'John Smith'.
-modelSpace2 putModel: bankAccount2.
 ```
 
-Of course bankAccount2 is just initialized at this stage.
+Of course modelSpace2 is just empty at this stage.
 
-```
-modelSpace2 getBalanceAt: '00001'. "-> returns 0"
+```Smalltalk
+modelSpace2 models isEmpty. "-> true"
 ```
 
-Let's try replaying. We can send `#catchup`.
+Let's try replaying events. We can send `#catchup`.
 
-```
+```Smalltalk
 modelSpace2 catchup.
 ```
 
-This method automatically retrieves and replays events up to the latest version. If a snapshot is available, it uses the snapshot to restore the state and replays only the events that occurred after the snapshot. This ensures efficient restoration of the `ModelSpace` to the desired state.
+This method retrieves and replays events up to the latest version. If a snapshot is available, it uses the snapshot to restore the state and replays only the events that occurred after the snapshot. This ensures efficient restoration of the `ModelSpace` to the desired state.
 
 Now you will get the result:
 
-```
-modelSpace2 getBalanceAt: '00001'. "-> returns 170"
+```Smalltalk
+modelSpace2 getBalanceAt: accId. "-> 170"
 ```
 
-Moreover, `modelSpace2` will automatically synchronize with the latest state as new events are added.
+## Automatic synchronization by catchup
+
+Moreover, `modelSpace2` will automatically synchronize with the latest state as new incoming events are occurred in future.
 
 For example, try sending additional `#deposit:at:` messages to the original `modelSpace`:
 
 ```Smalltalk
-modelSpace deposit: 10 at: '00001'.
-modelSpace deposit: 20 at: '00001'.
+modelSpace deposit: 10 at: accId.
+modelSpace deposit: 20 at: accId.
 ```
 
-Now, send the `#getBalanceAt:` message to `modelSpace2`. You will notice that it reflects the updated state of the model, including the latest deposits.
+Now, send the `#getBalanceAt:` to `modelSpace2`. You will notice that it reflects the updated state of the model, including the latest deposits.
 
 ```Smalltalk
-modelSpace2 getBalanceAt: '00001'. "-> returns 200"
+modelSpace2 getBalanceAt: accId. "-> 200"
 ```
 
-This automatic synchronization ensures that all ModelSpace instances stay up-to-date with the latest changes, making it useful for distributed systems where multiple components need to track the same state.
+This automatic synchronization ensures that all ModelSpace instances stay up-to-date with the incoming changes, making it useful for distributed systems where multiple components need to track the same state.
+
+## Time Traveling: Exploring Past States
+
+The framework allows you to easily "time travel" to view the state of your `ModelSpace` at any specific point in the past, identified by an event version (which acts like a timestamp). This is done using the `goTo:` method.
+
+### How Time Traveling Works
+
+1.  **Retrieve Event Versions**: First, you need the event version corresponding to the point in time you want to visit. You can get a list of recent event versions using `eventVersionsReversedFromLast:`.
+2.  **Use `goTo:`**: Pass the desired event version to the `goTo:` method of your `ModelSpace` instance. The `ModelSpace` will then revert its state to exactly how it was _after_ that specific event occurred.
+
+### Example: Traveling Through Account History
+
+Let's retrieve the recent event versions for `modelSpace2`:
+
+```Smalltalk
+recentEventVersions := modelSpace2 eventVersionsReversedFromLast: 10. "print it"
+```
+
+This might give you a list like this (newest first):
+
+```Smalltalk
+an OrderedCollection('1744206010080-0' '1744206008674-0' '1744205251197-0'
+'1744204797556-0' '1744204795460-0' '1744204795457-0')
+```
+
+Now, let's travel to different points in time:
+
+**1. Go to the initial state (before any balance changes):**
+The oldest event version is the last one in the list.
+
+```Smalltalk
+modelSpace2 goTo: recentEventVersions last. "Go to the initial version"
+modelSpace2 getBalanceAt: accId. "-> 0"
+```
+
+**2. Go to the most recent state:**
+The newest event version is the first one in the list.
+
+```Smalltalk
+modelSpace2 goTo: recentEventVersions first. "Go to the latest version"
+modelSpace2 getBalanceAt: accId. "-> 200"
+```
+
+**3. Go to an intermediate state:**
+Let's go to the state after the event `'1744205251197-0'` occurred (the third event version in our list).
+
+```Smalltalk
+modelSpace2 goTo: recentEventVersions third. "Go to the version '1744205251197-0'"
+modelSpace2 getBalanceAt: accId. "-> 170"
+```
+
+This time-traveling capability is incredibly useful for debugging, auditing, or understanding how the model's state evolved over time.
+Internally, the framework optimizes this time-traveling process for efficiency. When you use `goTo:`, it doesn't blindly replay every event from the very beginning. Instead, it first identifies and loads the most recent snapshot saved _before_ the target event version. Then, it only replays the events that occurred _between_ that snapshot and the target event version. This "differential replay" significantly speeds up the restoration process, especially when dealing with a large number of historical events, ensuring that `goTo:` remains efficient.
