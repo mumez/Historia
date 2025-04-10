@@ -36,7 +36,7 @@ HsEventProcessor >> eventStream [
 	self subclassResponsibility 
 ]
 
-{ #category : 'initializing' }
+{ #category : 'initialization' }
 HsEventProcessor >> initialize [
 	super initialize.
 	shouldKeepProcessing := false.
