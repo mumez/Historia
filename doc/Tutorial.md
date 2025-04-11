@@ -488,3 +488,161 @@ modelSpace2 getBalanceAt: accId. "-> 170"
 
 This time-traveling capability is incredibly useful for debugging, auditing, or understanding how the model's state evolved over time.
 Internally, the framework optimizes this time-traveling process for efficiency. When you use `goTo:`, it doesn't blindly replay every event from the very beginning. Instead, it first identifies and loads the most recent snapshot saved _before_ the target event version. Then, it only replays the events that occurred _between_ that snapshot and the target event version. This "differential replay" significantly speeds up the restoration process, especially when dealing with a large number of historical events, ensuring that `goTo:` remains efficient.
+
+## Collaborating with Other ModelSpaces via EventBridge
+
+`ModelSpaces` can be interconnected using an `EventBridge`, which facilitates communication between them. The `EventBridge` receives events (or notifications) from a specified `ModelSpace` using its space ID and implements flexible event handlers to send messages to other `ModelSpaces` or external services.
+
+By default, the `EventBridge` uses simple handler block registration for ease of use. However, it is built on the Announcer framework, allowing for more customized event handling behaviors when needed.
+
+In this example, we'll create a mock bridge called `HtBankAccountMailBridge`. This bridge simulates sending a notification email whenever a bank account receives a transfer from another account.
+
+### Defining HtBankAccountMailBridge
+
+First, define the `HtBankAccountMailBridge` class:
+
+```Smalltalk
+HsModelEventBridge << #HtBankAccountMailBridge
+    slots: {};
+    package: 'Historia-Examples-SimpleBank'
+```
+
+`HsModelEventBridge` is an abstract class for creating an `EventBridge`.
+
+Next, add an initialization method to register a notification event handler:
+
+```Smalltalk
+(initialization)
+initialize
+    super initialize.
+    self notificationAnnouncedDo: [ :announcement |
+        announcement kind = #transferredTo ifTrue: [
+            self handleTransferredToEvent: announcement event ] ]
+```
+
+Use `notificationAnnouncedDo:` to register a notification event handler. In this example, we handle notifications of type `#transferredTo` and call `handleTransferredToEvent:` when such a notification is received.
+
+In `handleTransferredToEvent:`, we simulate sending a transfer notification email using another `ModelSpace` and an external mail service:
+
+```Smalltalk
+(event handling)
+handleTransferredToEvent: notificationEvent
+    | accountId mailAddress |
+    accountId := notificationEvent argsAt: 'to' ifAbsent: [ '' ].
+    mailAddress := self mailAccountSpace getMailAddressAt: accountId.
+    self externalMailService
+        sendMailTo: mailAddress
+        content: (self mailTemplateSpace
+                 getContentAt: notificationEvent kind
+                 values: notificationEvent arguments)
+```
+
+This method processes a transfer notification event and sends an email to the recipient:
+
+1. First, it extracts the recipient's account ID from the event arguments using `argsAt:ifAbsent:`
+2. Then it looks up the recipient's email address using the mock `mailAccountSpace`
+3. Finally, it sends an email by:
+   - Getting an email template from the mock `mailTemplateSpace`
+   - Formatting the template with the event arguments
+   - Using the mock `externalMailService` to send the email
+
+For simplicity, this example just uses mocks instead of actual ModelSpaces or services:
+
+```Smalltalk
+(accessing)
+mailAccountSpace
+    ^ self
+```
+
+```Smalltalk
+(accessing)
+mailTemplateSpace
+    ^ self
+```
+
+```Smalltalk
+(accessing)
+externalMailService
+    ^ self
+```
+
+```Smalltalk
+(mocking - template space)
+getContentAt: templateKey values: templateValues
+    ^ 'You just received {amount} from {from}' format: templateValues
+```
+
+```Smalltalk
+(mocking - account space)
+getMailAddressAt: accountId
+    ^ { ('00001' -> 'john.smith@example.com') } asDictionary
+          at: accountId
+          ifAbsent: [ '' ]
+```
+
+```Smalltalk
+(mocking - external mail service)
+sendMailTo: mailAddress content: mailContent
+    Transcript
+        cr;
+        show: ('## Send mail to: {1} content: {2}' format: {mailAddress. mailContent})
+```
+
+### Adding a Transfer Method to HtBankAccountSpace
+
+Let's add a `transfer:from:to:` method to the `HtBankAccountSpace` class to implement the transfer functionality between accounts:
+
+```Smalltalk
+(actions)
+transfer: amount from: fromAccountId to: toAccountId
+
+    | fromAcc toAcc |
+    fromAcc := self modelAt: fromAccountId.
+    toAcc := self modelAt: toAccountId.
+    fromAcc mutateBalanceChange: amount negated.
+    toAcc mutateBalanceChange: amount.
+    toAcc notify: #transferredTo withArguments: {
+            (#to -> toAccountId).
+            (#from -> fromAccountId).
+            (#amount -> amount) }.
+    self saveAll: {
+            fromAcc.
+            toAcc }
+```
+
+#### Explanation:
+
+1. **Retrieve Accounts**: The method retrieves the account models for both the sender (`fromAcc`) and the receiver (`toAcc`) using their account IDs.
+2. **Mutate Balances**: It applies a negative balance change to the sender's account and a positive balance change to the receiver's account.
+3. **Notify Transfer**: The receiver's account is notified of the transfer event with relevant details (sender, receiver, and amount).
+4. **Save Changes**: Both account models are saved to persist the changes.
+
+### Collaborating Together
+
+In the Playground, set up the `bankMailBridge` to handle notifications:
+
+```Smalltalk
+bankMailBridge := HtBankAccountMailBridge spaceId: spaceId.
+bankMailBridge catchup.
+```
+
+You'll also need to create another bank account (`'00002'`) to transfer money to account `'00001'`:
+
+```Smalltalk
+modelSpace putModelOf: HtBankAccount id: '00002' withArguments: {'name'->'Masashi Umezawa'}.
+modelSpace deposit: 10000000 at: '00002'.
+```
+
+Now, perform a transfer:
+
+```Smalltalk
+modelSpace transfer: 2000 from: '00002' to: '00001'
+```
+
+You will see a message in the Transcript indicating the transfer:
+
+```
+## Send mail to: john.smith@example.com content: You just received 2000 from 00002
+```
+
+This example demonstrates how to implement and use a transfer method within the `HtBankAccountSpace`, enabling account-to-account transfers and notifications.
