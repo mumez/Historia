@@ -610,12 +610,14 @@ transfer: amount from: fromAccountId to: toAccountId
             toAcc }
 ```
 
+When you send the message `#notify:withArguments:` to a model, it creates a notification event. This event is characterized by a symbol that indicates its type, known as the "kind," and it can also include additional arguments that provide further context or details. It is important to understand that this notification is not dispatched immediately upon creation. Instead, it is queued and will only be sent out when the model to which it is associated is saved.
+
 #### Explanation:
 
 1. **Retrieve Accounts**: The method retrieves the account models for both the sender (`fromAcc`) and the receiver (`toAcc`) using their account IDs.
 2. **Mutate Balances**: It applies a negative balance change to the sender's account and a positive balance change to the receiver's account.
 3. **Notify Transfer**: The receiver's account is notified of the transfer event with relevant details (sender, receiver, and amount).
-4. **Save Changes**: Both account models are saved to persist the changes.
+4. **Save Changes**: Both account models are saved to persist the changes. The notification is fired at this time.
 
 ### Collaborating Together
 
@@ -646,3 +648,37 @@ You will see a message in the Transcript indicating the transfer:
 ```
 
 This example demonstrates how to implement and use a transfer method within the `HtBankAccountSpace`, enabling account-to-account transfers and notifications.
+
+### Handling Mutation Events in EventBridge
+
+In the previous section, we demonstrated collaboration using notification events in the EventBridge. Notification events are useful for signaling specific state changes within action methods.
+
+Since Historia uses events for all model mutations, the EventBridge can also handle any mutation events directly. Let's create an auditor event bridge to demonstrate this capability. For simplicity, we'll just use the existing `HsModelEventBridge` class instead of creating a subclass.
+
+```Smalltalk
+auditorEventBridge := HsModelEventBridge spaceId: spaceId.
+auditorEventBridge eventAnnouncedDo: [:ann | | event |
+    event := ann event.
+    Transcript cr; show: ('##{1} typeName:{2} arguments:{3}' format: { event targetId. event typeName. event arguments })
+].
+auditorEventBridge startPullingEventsFromLastExecuted.
+```
+
+Note that we use `startPullingEventsFromLastExecuted` instead of `catchup` for the `auditorEventBridge`. This is because we only want to log incoming mutation events going forward, rather than replaying historical events.
+
+Let's perform some mutations on a bank account to see the event logging in action:
+
+```Smalltalk
+modelSpace deposit: 30 at: accId.
+modelSpace withdraw: 40 at: accId.
+modelSpace transfer: 5000 from: '00002' to: accId.
+```
+
+You will see the mutation logs appear in the Transcript:
+
+```Smalltalk
+##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->30 )
+##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->-40 )
+##00002 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->-5000 )
+
+```
