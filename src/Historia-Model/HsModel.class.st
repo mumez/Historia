@@ -75,7 +75,7 @@ HsModel >> id: anObject [
 	id := anObject
 ]
 
-{ #category : 'initializing' }
+{ #category : 'initialization' }
 HsModel >> initWithArguments: initializerArguments [
 	initializerArguments keysAndValuesDo: [ :k :v |
 		[ self perform: k asSymbol asMutator with: v ]

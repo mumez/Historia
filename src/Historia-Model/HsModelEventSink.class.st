@@ -29,7 +29,7 @@ HsModelEventSink class >> spaceId: aSpaceId [
 		  yourself
 ]
 
-{ #category : 'initializing' }
+{ #category : 'initialization' }
 HsModelEventSink >> catchup [
 	| snapVersion |
 	snapVersion := self lastSnapshotVersion.
@@ -335,7 +335,7 @@ HsModelEventSink >> settings: anObject [
 	settings := anObject
 ]
 
-{ #category : 'initializing' }
+{ #category : 'initialization' }
 HsModelEventSink >> setupFrom: snapshotVersion [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion.
