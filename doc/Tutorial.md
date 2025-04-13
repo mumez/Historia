@@ -661,12 +661,12 @@ auditorEventBridge eventAnnouncedDo: [:ann | | event |
     event := ann event.
     Transcript cr; show: ('##{1} typeName:{2} arguments:{3}' format: { event targetId. event typeName. event arguments })
 ].
-auditorEventBridge startPullingEventsFromLastExecuted.
+auditorEventBridge catchup.
 ```
 
-Note that we use `startPullingEventsFromLastExecuted` instead of `catchup` for the `auditorEventBridge`. This is because we only want to log incoming mutation events going forward, rather than replaying historical events.
+Note that after sending `#catchup`, logs are already shown in Transcript. This is because auditorEventBridge replayed events to catchup to the latest state.
 
-Let's perform some mutations on a bank account to see the event logging in action:
+Let's perform some mutations on a bank account to see the incoming event logging in action:
 
 ```Smalltalk
 modelSpace deposit: 30 at: accId.
@@ -674,7 +674,7 @@ modelSpace withdraw: 40 at: accId.
 modelSpace transfer: 5000 from: '00002' to: accId.
 ```
 
-You will see the mutation logs appear in the Transcript:
+You will see the mutation logs appear in Transcript:
 
 ```Smalltalk
 ##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->30 )
