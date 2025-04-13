@@ -8,6 +8,12 @@ Class {
 	#package : 'Historia-Model'
 }
 
+{ #category : 'utilities' }
+HsModelEventBridge class >> unsubscribeAll [
+	<script>
+	self allSubInstancesDo: [ :inst | inst unsubscribe ]
+]
+
 { #category : 'accessing' }
 HsModelEventBridge >> announcer [
 
