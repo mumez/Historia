@@ -271,7 +271,7 @@ HsModelEventSink >> postExecuted: anEvent [
 	| eventVersion |
 	eventVersion := anEvent version.
 	self lastExecutedVersion: eventVersion.
-	self snapshotTaker takeIfNeeded: eventVersion
+	^ eventVersion
 ]
 
 { #category : 'event puller callback' }

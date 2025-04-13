@@ -8,6 +8,12 @@ Class {
 	#package : 'Historia-Model'
 }
 
+{ #category : 'utilities' }
+HsModelEventBridge class >> unsubscribeAll [
+	<script>
+	self allSubInstancesDo: [ :inst | inst unsubscribe ]
+]
+
 { #category : 'accessing' }
 HsModelEventBridge >> announcer [
 
@@ -30,7 +36,19 @@ HsModelEventBridge >> handleSinked: anEvent [
 	self announcer announce: anEvent 
 ]
 
+{ #category : 'initialization' }
+HsModelEventBridge >> initialize [
+	super initialize.
+	announcer ifNotNil: [ self unsubscribe ].
+	announcer := nil
+]
+
 { #category : 'announcements' }
 HsModelEventBridge >> notificationAnnouncedDo: aOneArgBlock [
 	self announcer when: HsNotificationAnnouncement do: aOneArgBlock for: self
+]
+
+{ #category : 'announcements' }
+HsModelEventBridge >> unsubscribe [
+	self announcer unsubscribe: self
 ]
