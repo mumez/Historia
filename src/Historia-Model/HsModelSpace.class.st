@@ -30,6 +30,14 @@ HsModelSpace >> fireEvent: anEvent [
 	self eventPusher queueEvent: anEvent
 ]
 
+{ #category : 'executing-events' }
+HsModelSpace >> postExecuted: anEvent [
+	| eventVersion |
+	eventVersion := super postExecuted: anEvent.
+	self snapshotTaker takeIfNeeded: eventVersion.
+	^ eventVersion
+]
+
 { #category : 'releasing' }
 HsModelSpace >> releaseStorages [
 	self eventPusher destroy.
