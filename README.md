@@ -51,3 +51,10 @@ modelSpace2 catchup.
 "Step 7: Print the model state (You may need to wait briefly for the events to propagate)"
 (modelSpace2 modelAt: 'numbers') values. "-> an OrderedCollection(1 2 3 4 5)"
 ```
+
+## How to use the framework
+
+Please see the
+
+- [Tutorial](./doc/tutorial)
+- [チュートリアル(日本語)](./doc/tutorial_ja)
