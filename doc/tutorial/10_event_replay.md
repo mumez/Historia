@@ -6,7 +6,7 @@ This time we will create another ModelSpace to demonstrate ModelSpace restoratio
 modelSpace2 := HtBankAccountSpace spaceId: spaceId.
 ```
 
-Of course modelSpace2 is just empty at this stage.
+Of course `modelSpace2` is just empty at this stage.
 
 ```Smalltalk
 modelSpace2 models isEmpty. "-> true"

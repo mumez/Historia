@@ -2,7 +2,7 @@
 
 ## Defining the ModelSpace (Aggregation)
 
-The `ModelSpace` class is responsible for managing the lifecycle of models, including saving snapshots and replaying events. Here, we define a `HtBankAccountSpace` to manage `HtBankAccount` models.
+The ModelSpace class is responsible for managing the lifecycle of models, including saving snapshots and replaying events. Here, we define a `HtBankAccountSpace` to manage `HtBankAccount` models.
 
 ```Smalltalk
 HsModelSpace << #HtBankAccountSpace

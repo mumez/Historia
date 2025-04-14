@@ -1,8 +1,8 @@
 # Collaborating with Other ModelSpaces via EventBridge
 
-`ModelSpaces` can be interconnected using an `EventBridge`, which facilitates communication between them. The `EventBridge` receives events (or notifications) from a specified `ModelSpace` using its space ID and implements flexible event handlers to send messages to other `ModelSpaces` or external services.
+ModelSpaces can be interconnected using an EventBridge, which facilitates communication between them. The EventBridge receives events (or notifications) from a specified ModelSpace using its space ID and implements flexible event handlers to send messages to other ModelSpaces or external services.
 
-By default, the `EventBridge` uses simple handler block registration for ease of use. However, it is built on the Announcer framework, allowing for more customized event handling behaviors when needed.
+By default, the EventBridge uses simple handler block registration for ease of use. However, it is built on the Announcer framework, allowing for more customized event handling behaviors when needed.
 
 In this example, we'll create a mock bridge called `HtBankAccountMailBridge`. This bridge simulates sending a notification email whenever a bank account receives a transfer from another account.
 

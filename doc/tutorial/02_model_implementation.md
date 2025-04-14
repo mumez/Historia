@@ -2,7 +2,7 @@
 
 ## Defining the Model Class
 
-The `Model` class represents the main data structure of your application. In this example, we define a `HtBankAccount` model to represent a bank account.
+The Model class represents the main data structure of your application. In this example, we define a `HtBankAccount` model to represent a bank account.
 
 ```Smalltalk
 HsModel << #HtBankAccount
