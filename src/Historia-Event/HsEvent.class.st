@@ -45,8 +45,7 @@ HsEvent class >> id: eventId data: eventData [
 { #category : 'class initialization' }
 HsEvent class >> initialize [
 	EventClasses := Dictionary new.
-	self register.
-	self allSubclassesDo: [ :each | each register ]
+	self registerAll
 ]
 
 { #category : 'instance creation' }
@@ -64,6 +63,13 @@ HsEvent class >> originatorId: originatorId targetId: targetId [
 { #category : 'registering' }
 HsEvent class >> register [
 	EventClasses at: self typeName put: self
+]
+
+{ #category : 'class initialization' }
+HsEvent class >> registerAll [
+	<script>
+	self register.
+	self allSubclassesDo: [ :each | each register ]
 ]
 
 { #category : 'accessing' }
@@ -92,6 +98,11 @@ HsEvent >> argsAt: key [
 { #category : 'accessing' }
 HsEvent >> argsAt: key ifAbsent: aBlock [
 	^ self arguments at: key ifAbsent: aBlock
+]
+
+{ #category : 'accessing' }
+HsEvent >> argsAt: key ifPresent: aBlock [
+	^ self arguments at: key ifPresent: aBlock
 ]
 
 { #category : 'accessing' }
@@ -208,6 +219,14 @@ HsEvent >> isReplayable [
 { #category : 'accessing' }
 HsEvent >> logger [
 	^ HsLogger default
+]
+
+{ #category : 'accessing' }
+HsEvent >> mergeArgs: moreArguments [
+	moreArguments keysAndValuesDo: [ :k :v | 
+		self argsAt: k put: v
+	].
+	^ self arguments
 ]
 
 { #category : 'accessing' }

@@ -29,11 +29,16 @@ HsModelEventSink class >> spaceId: aSpaceId [
 		  yourself
 ]
 
-{ #category : 'initializing' }
+{ #category : 'initialization' }
 HsModelEventSink >> catchup [
 	| snapVersion |
 	snapVersion := self lastSnapshotVersion.
 	self setupFrom: snapVersion.
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> defaultNotifierModel [
+	^ self modelAt: HsDefaultNotifierModel defaultId ifAbsentPut: [ HsDefaultNotifierModel on: self ]
 ]
 
 { #category : 'defaults' }
@@ -113,6 +118,13 @@ HsModelEventSink >> executionContextClassAt: className ifAbsent: aBlock [
 ]
 
 { #category : 'private' }
+HsModelEventSink >> fixModelsAfterLoadingSnapshot [
+	models ifNil: [ ^ self ].
+	(models select: [ :each | each isHistoriaModel ]) do: [ :each |
+		each modelSpace: self ]
+]
+
+{ #category : 'private' }
 HsModelEventSink >> generateOriginatorId [
 	^ UUID new asString36
 ]
@@ -176,6 +188,7 @@ HsModelEventSink >> loadSnapshot: snapshotVersion [
 	snapArray := self snapshotStorage snapshotAt: snapshotVersion.
 	self lastLoadedSnapshotVersion: snapArray first.
 	self models: snapArray last.
+	self fixModelsAfterLoadingSnapshot.
 	^ true
 ]
 
@@ -206,6 +219,11 @@ HsModelEventSink >> modelAt: modelId ifAbsent: aBlock [
 ]
 
 { #category : 'accessing-models' }
+HsModelEventSink >> modelAt: modelId ifAbsentPut: modelCreationBlock [
+	^ self models at: modelId ifAbsentPut: modelCreationBlock 
+]
+
+{ #category : 'accessing-models' }
 HsModelEventSink >> modelAt: modelId put: aModel [
 	^ self models at: modelId put: aModel 
 ]
@@ -219,6 +237,21 @@ HsModelEventSink >> models [
 HsModelEventSink >> models: anObject [
 
 	models := anObject
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> notify: notificationKind [
+	self defaultNotifierModel notify: notificationKind; save
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> notify: notificationKind using: aBlock [
+	self defaultNotifierModel notify: notificationKind using: aBlock; save
+]
+
+{ #category : 'notifying' }
+HsModelEventSink >> notify: notificationSymbol withArguments: notificationArgs [
+	self defaultNotifierModel notify: notificationSymbol withArguments: notificationArgs; save
 ]
 
 { #category : 'accessing' }
@@ -238,7 +271,7 @@ HsModelEventSink >> postExecuted: anEvent [
 	| eventVersion |
 	eventVersion := anEvent version.
 	self lastExecutedVersion: eventVersion.
-	self snapshotTaker takeIfNeeded: eventVersion
+	^ eventVersion
 ]
 
 { #category : 'event puller callback' }
@@ -263,6 +296,14 @@ HsModelEventSink >> putModelOf: modelClass id: modelId initializing: initializer
 	newModel := modelClass id: modelId.
 	newModel instanceCreated: self initializing: initializerBlock.
 	^ newModel
+]
+
+{ #category : 'actions-model' }
+HsModelEventSink >> putModelOf: modelClass id: modelId withArguments: initializerDict [
+	^ self
+		  putModelOf: modelClass
+		  id: modelId
+		  initializing: [ :ev | ev mergeArgs: initializerDict asDictionary ]
 ]
 
 { #category : 'releasing' }
@@ -294,7 +335,7 @@ HsModelEventSink >> settings: anObject [
 	settings := anObject
 ]
 
-{ #category : 'initializing' }
+{ #category : 'initialization' }
 HsModelEventSink >> setupFrom: snapshotVersion [
 	self loadSnapshot: snapshotVersion.
 	self replayFrom: snapshotVersion.

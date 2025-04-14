@@ -166,6 +166,8 @@ HsBankTestCase >> testAccountsPropagated [
 	bankApp eventPusher waitEmptyFor: 100.
 	readBankApp catchup.
 	readAcc1 := readBankApp accountAt: accountId.
+	self assert: readAcc1 name equals: 'name-1'.
+	self assert: readAcc1 emailAddress equals: 'email-1'.
 	self assert: (readBankApp getBalanceAt: accountId) equals: 10.
 	bankApp deposit: 100 at: accountId.
 	bankApp eventPusher waitEmptyFor: 100.
@@ -175,15 +177,15 @@ HsBankTestCase >> testAccountsPropagated [
 
 { #category : 'tests' }
 HsBankTestCase >> testAccountsTransferNotified [
-	| spaceId bankApp accountId1 acc1 accountId2 acc2 notifiedApp events transferedNotices transferedNotice |
+	| spaceId bankApp accountId1 acc1 accountId2 acc2 notifiedApp events transferredNotices transferredNotice |
 	spaceId := 'test-baTransferNotified'.
 	bankApp := HsBankAccountSpace spaceId: spaceId.
 	notifiedApp := HsModelEventBridge spaceId: spaceId.
 	events := OrderedCollection new.
-	transferedNotices := OrderedCollection new.
+	transferredNotices := OrderedCollection new.
 	notifiedApp 
 		eventAnnouncedDo: [:ann | events add: ann event];
-		notificationAnnouncedDo: [:ann | ann event kind = #tranferedTo ifTrue: [transferedNotices add: ann event arguments]].
+		notificationAnnouncedDo: [:ann | ann event kind = #transferredTo ifTrue: [transferredNotices add: ann event arguments]].
 	self spaces: { bankApp. notifiedApp } do: [
 	bankApp startPushingEvents.
 	accountId1 := 'acc-1'.
@@ -203,9 +205,9 @@ HsBankTestCase >> testAccountsTransferNotified [
 	self assert: events size equals: 6.
 	self assert: events last targetId equals: 'acc-2'.
 	self assert: (events last  argsAt: 'value') equals: 50.	
-	self assert: transferedNotices size equals: 1.
-	transferedNotice := transferedNotices first.
-	self assert: (transferedNotice at: 'from') equals: 'acc-1'.
-	self assert: (transferedNotice at: 'amount') equals: 50.
+	self assert: transferredNotices size equals: 1.
+	transferredNotice := transferredNotices first.
+	self assert: (transferredNotice at: 'from') equals: 'acc-1'.
+	self assert: (transferredNotice at: 'amount') equals: 50.
 	].
 ]
