@@ -54,4 +54,4 @@ modelSpace2 catchup.
 
 ## How to use the framework
 
-Please see the [Tutorial](./doc/Tutorial.md)
+Please see the [Tutorial](./doc/tutorial)
