@@ -2,7 +2,7 @@
 
 ## Why Add Domain Actions?
 
-The `ModelSpace` provides a generic mechanism for managing models, but domain-specific actions make it easier to encapsulate business logic and provide a clear API for interacting with the models. By defining these actions, you can:
+The ModelSpace provides a generic mechanism for managing models, but domain-specific actions make it easier to encapsulate business logic and provide a clear API for interacting with the models. By defining these actions, you can:
 
 - Simplify common operations (e.g., retrieving a balance).
 - Ensure consistency by centralizing business logic.
@@ -18,7 +18,7 @@ We will implement the following actions in the `HtBankAccountSpace`:
 
 ### Retrieving a Balance
 
-To retrieve the balance of a specific account, we define the `getBalanceAt:` method. This method takes an account ID as input, retrieves the corresponding model from the `ModelSpace`, and returns its balance.
+To retrieve the balance of a specific account, we define the `getBalanceAt:` method. This method takes an account ID as input, retrieves the corresponding model from the ModelSpace, and returns its balance.
 
 ```Smalltalk
 (actions)
@@ -74,7 +74,7 @@ withdraw: amount at: accountId
 ### Important Notes
 
 1. **Event Persistence**: The `save:` method ensures that pending events (in this case, HtBankAccountBalanceChanged instances) are stored in the underlying repository. This allows the framework to replay events and restore the state of the model at any point in time.
-2. **Consistency**: By centralizing the logic for deposits and withdrawals in the `ModelSpace`, you ensure that all operations are consistent and follow the same rules.
+2. **Consistency**: By centralizing the logic for deposits and withdrawals in the ModelSpace, you ensure that all operations are consistent and follow the same rules.
 3. **Error Handling**: In a real-world application, you should add error handling to check for conditions such as insufficient funds during withdrawals.
 
 Here is an example of how these actions can be used together:

@@ -1,5 +1,7 @@
 # Implementing Mutations
 
+The next step is to implement mutations.
+
 Mutations are the actions that modify the state of the model. In this framework, all mutations are tracked as events, ensuring that every change is recorded and can be replayed or audited later. This section explains how to implement mutations step by step.
 
 ## Step 1: Define a Mutation Method in the Model

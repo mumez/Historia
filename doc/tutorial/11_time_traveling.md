@@ -1,11 +1,11 @@
 # Time Traveling: Exploring Past States
 
-The framework allows you to easily "time travel" to view the state of your `ModelSpace` at any specific point in the past, identified by an event version (which acts like a timestamp). This is done using the `goTo:` method.
+The framework allows you to easily "time travel" to view the state of your ModelSpace at any specific point in the past, identified by an event version (which acts like a timestamp). This is done using the `goTo:` method.
 
 ## How Time Traveling Works
 
 1.  **Retrieve Event Versions**: First, you need the event version corresponding to the point in time you want to visit. You can get a list of recent event versions using `eventVersionsReversedFromLast:`.
-2.  **Use `goTo:`**: Pass the desired event version to the `goTo:` method of your ModelSpace instance. The `ModelSpace` will then revert its state to exactly how it was _after_ that specific event occurred.
+2.  **Use `goTo:`**: Pass the desired event version to the `goTo:` method of your ModelSpace instance. The ModelSpace will then revert its state to exactly how it was _after_ that specific event occurred.
 
 ## Example: Traveling Through Account History
 

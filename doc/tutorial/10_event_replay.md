@@ -18,7 +18,7 @@ Let's try replaying events. We can send `#catchup`.
 modelSpace2 catchup.
 ```
 
-This method retrieves and replays events up to the latest version. If a snapshot is available, it uses the snapshot to restore the state and replays only the events that occurred after the snapshot. This ensures efficient restoration of the `ModelSpace` to the desired state.
+This method retrieves and replays events up to the latest version. If a snapshot is available, it uses the snapshot to restore the state and replays only the events that occurred after the snapshot. This ensures efficient restoration of the ModelSpace to the desired state.
 
 Now you will get the result:
 

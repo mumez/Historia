@@ -31,7 +31,7 @@ initialize
 
 Use `notificationAnnouncedDo:` to register a notification event handler. In this example, we handle notifications of type `#transferredTo` and call `handleTransferredToEvent:` when such a notification is received.
 
-In `handleTransferredToEvent:`, we simulate sending a transfer notification email using another `ModelSpace` and an external mail service:
+In `handleTransferredToEvent:`, we simulate sending a transfer notification email using another ModelSpace and an external mail service:
 
 ```Smalltalk
 (event handling)

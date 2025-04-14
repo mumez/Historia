@@ -1,10 +1,10 @@
 # Snapshotting Model Space
 
-Snapshots allow you to save the state of a `ModelSpace` at a specific point in time. By using snapshots, you can avoid replaying all past events, which improves performance when restoring the state of the `ModelSpace`.
+Snapshots allow you to save the state of a ModelSpace at a specific point in time. By using snapshots, you can avoid replaying all past events, which improves performance when restoring the state of the ModelSpace.
 
 ## Saving a Snapshot
 
-To save a snapshot of the current state of the `ModelSpace`, send the `#saveSnapshot` message:
+To save a snapshot of the current state of the ModelSpace, send the `#saveSnapshot` message:
 
 ```Smalltalk
 modelSpace saveSnapshot.
@@ -41,7 +41,7 @@ an OrderedCollection('1744205252394-0' '1744205230917-0')
 
 ## Loading a Snapshot
 
-To restore the state of the `ModelSpace` from a specific snapshot, send the `#loadSnapshot:` message:
+To restore the state of the ModelSpace from a specific snapshot, send the `#loadSnapshot:` message:
 
 ```Smalltalk
 modelSpace loadSnapshot: snapshotVersion.
