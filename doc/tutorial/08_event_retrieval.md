@@ -8,7 +8,7 @@ Each event is stored in the underlying Redis stream asynchronously when you save
 modelSpace eventJournalStorage allEvents. "print it"
 ```
 
-You can see tow events such as:
+You can see three events such as:
 
 ```
 an OrderedCollection([#1744204795457-0: modelCreated targetIds:#('00001')]
