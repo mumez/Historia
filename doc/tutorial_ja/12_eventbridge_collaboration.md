@@ -76,17 +76,17 @@ externalMailService
 ```
 
 ```Smalltalk
-(mocking - template space)
-getContentAt: templateKey values: templateValues
-    ^ 'You just received {amount} from {from}' format: templateValues
-```
-
-```Smalltalk
 (mocking - account space)
 getMailAddressAt: accountId
     ^ { ('00001' -> 'john.smith@example.com') } asDictionary
           at: accountId
           ifAbsent: [ '' ]
+```
+
+```Smalltalk
+(mocking - template space)
+getContentAt: templateKey values: templateValues
+    ^ 'You just received {amount} from {from}' format: templateValues
 ```
 
 ```Smalltalk
