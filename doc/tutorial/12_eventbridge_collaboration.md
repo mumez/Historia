@@ -183,7 +183,7 @@ modelSpace transfer: 5000 from: '00002' to: accId.
 
 You will see the mutation logs appear in Transcript:
 
-```Smalltalk
+```
 ##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->30 )
 ##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->-40 )
 ##00002 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->-5000 )
