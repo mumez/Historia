@@ -76,17 +76,17 @@ externalMailService
 ```
 
 ```Smalltalk
-(mocking - template space)
-getContentAt: templateKey values: templateValues
-    ^ 'You just received {amount} from {from}' format: templateValues
-```
-
-```Smalltalk
 (mocking - account space)
 getMailAddressAt: accountId
     ^ { ('00001' -> 'john.smith@example.com') } asDictionary
           at: accountId
           ifAbsent: [ '' ]
+```
+
+```Smalltalk
+(mocking - template space)
+getContentAt: templateKey values: templateValues
+    ^ 'You just received {amount} from {from}' format: templateValues
 ```
 
 ```Smalltalk
@@ -175,7 +175,7 @@ auditorEventBridge catchup.
 
 銀行口座でいくつかの変更を実行して、受信したイベントのログ記録が動作する様子を見てみましょう：
 
-```Smalltalk
+```
 modelSpace deposit: 30 at: accId.
 modelSpace withdraw: 40 at: accId.
 modelSpace transfer: 5000 from: '00002' to: accId.

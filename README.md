@@ -17,11 +17,19 @@
 
 ## Installation
 
+In Playgraoud:
+
 ```smalltalk
 Metacello new
   baseline: 'Historia';
-  repository: 'github://mumez/Historia/src';
+  repository: 'github://mumez/Historia:main/src';
   load.
+```
+
+If Redis is not running, you will also need to:
+
+```
+docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
 ```
 
 ## Quick example
