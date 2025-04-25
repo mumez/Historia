@@ -184,7 +184,7 @@ modelSpace transfer: 5000 from: '00002' to: accId.
 Transcript に変更ログが表示されます：
 
 ```Smalltalk
-##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->30 )
-##00001 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->-40 )
-##00002 typeName:HtBankAccountBalanceChanged class arguments:a Dictionary('value'->-5000 )
+##00001 typeName:HtBankAccountBalanceChanged arguments:a Dictionary('value'->30 )
+##00001 typeName:HtBankAccountBalanceChanged arguments:a Dictionary('value'->-40 )
+##00002 typeName:HtBankAccountBalanceChanged arguments:a Dictionary('value'->-5000 )
 ```

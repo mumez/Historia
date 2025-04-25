@@ -20,7 +20,7 @@ HsValueChanged << #HtBankAccountBalanceChanged
 ```Smalltalk
 (class side) (accessing)
 typeName
-	^ self className
+	^ self name
 ```
 
 この例では、クラス名がタイプ名として使用されています。ただし、実際のアプリケーションでは、より短い名前を使用することを推奨します。タイプ名はイベントストリームに送信されるたびにシリアライズされるものだからです。

@@ -20,7 +20,7 @@ Let's define #typeName class method to `HtBankAccountBalanceChanged`.
 ```Smalltalk
 (class side) (accessing)
 typeName
-	^ self className
+	^ self name
 ```
 
 In this example, the class name is used as the type name. However, in real-world applications, it is recommended to use a shorter name, as this name is serialized into the event stream every time an event is sent.
