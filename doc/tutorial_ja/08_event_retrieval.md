@@ -12,8 +12,8 @@ modelSpace eventJournalStorage allEvents. "print it"
 
 ```
 an OrderedCollection([#1744204795457-0: modelCreated targetIds:#('00001')]
-[#1744204795460-0: HtBankAccountBalanceChanged class targetIds:#('00001')]
-[#1744204797556-0: HtBankAccountBalanceChanged class targetIds:#('00001')])
+[#1744204795460-0: HtBankAccountBalanceChanged targetIds:#('00001')]
+[#1744204797556-0: HtBankAccountBalanceChanged targetIds:#('00001')])
 ```
 
 銀行口座の ModelSpace に`#deposit:at:`と`#withdraw:at:`を送信したため、2 つの`HtBankAccountBalanceChanged`イベントが記録されています。

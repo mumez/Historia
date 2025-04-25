@@ -12,8 +12,8 @@ You can see three events such as:
 
 ```
 an OrderedCollection([#1744204795457-0: modelCreated targetIds:#('00001')]
-[#1744204795460-0: HtBankAccountBalanceChanged class targetIds:#('00001')]
-[#1744204797556-0: HtBankAccountBalanceChanged class targetIds:#('00001')])
+[#1744204795460-0: HtBankAccountBalanceChanged targetIds:#('00001')]
+[#1744204797556-0: HtBankAccountBalanceChanged targetIds:#('00001')])
 ```
 
 Because you just sent `#deposit:at:` and `#withdraw:at:` to the bank account ModelSpace, two `HtBankAccountBalanceChanged` events are recorded.
