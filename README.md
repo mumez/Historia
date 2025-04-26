@@ -66,3 +66,13 @@ Please see the
 
 - [Tutorial](./doc/tutorial)
 - [チュートリアル(日本語)](./doc/tutorial_ja)
+
+## FAQ
+
+- Q: How to change Redis connection address / port?
+
+  A: Send `#targetUrl:` to `RsStreamSettings` default instance:
+
+  ```Smalltalk
+  RsStreamSettings default targetUrl: 'sync://localhost:6379'
+  ```
