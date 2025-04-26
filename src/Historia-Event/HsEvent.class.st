@@ -38,7 +38,10 @@ HsEvent class >> id: eventId [
 HsEvent class >> id: eventId data: eventData [
 	| type eventClass |
 	type := eventData at: #tp ifAbsent: [ self name ].
-	eventClass := EventClasses at: type ifAbsent: [ self ].
+	eventClass := EventClasses at: type ifAbsent: [
+		              self logger warn:
+			              'No such event type registered: ' , type.
+		              self ].
 	^ (eventClass id: eventId) readFromCompactDictionary: eventData
 ]
 
@@ -46,6 +49,11 @@ HsEvent class >> id: eventId data: eventData [
 HsEvent class >> initialize [
 	EventClasses := Dictionary new.
 	self registerAll
+]
+
+{ #category : 'logging' }
+HsEvent class >> logger [
+	^ HsLogger default
 ]
 
 { #category : 'instance creation' }
@@ -218,7 +226,7 @@ HsEvent >> isReplayable [
 
 { #category : 'accessing' }
 HsEvent >> logger [
-	^ HsLogger default
+	^ self class logger
 ]
 
 { #category : 'accessing' }
