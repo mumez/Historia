@@ -39,9 +39,9 @@ HsCommandEvent >> executeOn: modelSpace [
 		               self logger warn:
 			               '#executeOn: no target on modelSpace: '
 			               , self targetId asString.
-		               ^ self ].
-	targetModel handleSinked: self.
-	super executeOn: modelSpace.
+		               nil ].
+	targetModel ifNotNil: [ targetModel handleSinked: self ].
+	super executeOn: modelSpace
 ]
 
 { #category : 'comparing' }
