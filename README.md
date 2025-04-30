@@ -17,7 +17,7 @@
 
 ## Installation
 
-In Playgraoud:
+In Playground:
 
 ```smalltalk
 Metacello new
