@@ -47,6 +47,20 @@ HsEventJournalStorage >> codecType [
 ]
 
 { #category : 'actions' }
+HsEventJournalStorage >> deleteEventAt: aMessageId [ 
+	| deletedCount |
+	deletedCount := self eventStream deleteAt: aMessageId.
+	^ deletedCount = 1 
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> deleteEventsAtAll: messageIds [ 
+	| deletedCount |
+	deletedCount := self eventStream deleteAtIds: messageIds.
+	^ deletedCount 
+]
+
+{ #category : 'actions' }
 HsEventJournalStorage >> deleteEventsFrom: fromMessageId [
 	| eventIds |
 	eventIds := (self latestEventsFrom: fromMessageId) collect: [:each | each id].
@@ -56,6 +70,11 @@ HsEventJournalStorage >> deleteEventsFrom: fromMessageId [
 { #category : 'accessing' }
 HsEventJournalStorage >> eventStream [
 	^ eventStream ifNil: [ eventStream := HsUtils default newEventStreamNamed: self spaceId ]
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> eventVersionsFrom: version limit: limit [
+	^ (self streamIterator contentsFrom: version count: limit) collect: [ :each | each id ]
 ]
 
 { #category : 'actions' }
@@ -110,15 +129,6 @@ HsEventJournalStorage >> lastEventVersion [
 HsEventJournalStorage >> latestEventsFrom: fromMessageId [
 	^ (self streamIteratorNextFrom: fromMessageId) collect: [ :entry |
 		  HsEvent fromStreamEntry: entry ]
-]
-
-{ #category : 'actions' }
-HsEventJournalStorage >> markBadEventAt: aMessageId [ 
-	| event deletedCount |
-	event := self eventStream contentAt: aMessageId.
-	event ifNil: [ ^ self ].
-	deletedCount := self eventStream deleteAt: aMessageId.
-	^ deletedCount = 1 
 ]
 
 { #category : 'actions' }
