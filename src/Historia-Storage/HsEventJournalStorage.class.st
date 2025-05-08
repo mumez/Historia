@@ -88,6 +88,16 @@ HsEventJournalStorage >> eventVersionsReversedFromLast: limit [
 ]
 
 { #category : 'actions' }
+HsEventJournalStorage >> eventsDo: iterationBlock limit: limit [
+	| count countAndDo |
+	count := 0.
+	countAndDo := [ :entry |
+	              iterationBlock value: (HsEvent fromStreamEntry: entry).
+	              count := count + 1 ].
+	^ self streamIterator do: countAndDo whileFalse: [ limit <= count ]
+]
+
+{ #category : 'actions' }
 HsEventJournalStorage >> eventsFrom: fromMessageId to: toMessageId [
 	| events |
 	events := OrderedCollection new.

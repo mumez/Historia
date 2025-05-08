@@ -76,6 +76,38 @@ HsEventJournalStorageTestCase >> testBuildSendingPerformCommandData [
 ]
 
 { #category : 'tests' }
+HsEventJournalStorageTestCase >> testEventVersionsFromLimit [
+	| spaceId modelSpace vmodel all firstThree nextSix uptoLast |
+	spaceId := 'hs-ejEventVersionsFromLimit'.
+	modelSpace := HsModelSpace spaceId: spaceId.
+	self spaces: { modelSpace } do: [
+	modelSpace putModel: (HsOrderedCollectionModel id: 'vals-1').
+	vmodel := modelSpace modelAt: 'vals-1'.
+	modelSpace startPushingEvents.
+	1 to: 50 do: [ :idx | 
+		vmodel add: idx.
+		vmodel save.
+	].
+	modelSpace eventPusher waitEmptyFor: 100. 
+	all := modelSpace eventJournalStorage allEvents.
+	self assert: all size equals: 50.
+	firstThree := OrderedCollection new.
+	modelSpace eventJournalStorage eventsDo: [ :ev | firstThree add: ev ] limit: 3.
+	nextSix := modelSpace eventJournalStorage eventVersionsFrom: firstThree last eventId limit: 6.
+	
+	self assertCollection: firstThree asArray equals: (all first: 3) asArray.
+	self assert: firstThree last eventId equals: nextSix first.
+	self assertCollection: nextSix asArray equals: ((all copyFrom: 3 to: 8) collect: [:e | e eventId]) asArray.
+	
+	uptoLast := modelSpace eventJournalStorage eventVersionsFrom: nextSix last limit: 100.
+	self assert: nextSix last equals: uptoLast first.
+	self assertCollection: uptoLast asArray equals: ((all copyFrom: 8 to: 50) collect: [:e | e eventId]) asArray.
+	
+	]
+	
+]
+
+{ #category : 'tests' }
 HsEventJournalStorageTestCase >> testEventVersionsReversedFromLast [
 	| spaceId modelSpace vmodel all lastFive |
 	spaceId := 'hs-ejEventVersionsReversedFromLast'.
