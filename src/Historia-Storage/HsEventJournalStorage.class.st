@@ -54,6 +54,13 @@ HsEventJournalStorage >> deleteEventAt: aMessageId [
 ]
 
 { #category : 'actions' }
+HsEventJournalStorage >> deleteEventsAfter: fromMessageId [
+	| eventIds |
+	eventIds := (self streamIteratorNextFrom: fromMessageId) collect: [:each | each id].
+	^ self deleteEventsAtAll: eventIds 
+]
+
+{ #category : 'actions' }
 HsEventJournalStorage >> deleteEventsAtAll: messageIds [ 
 	| deletedCount |
 	deletedCount := self eventStream deleteAtIds: messageIds.
@@ -61,10 +68,10 @@ HsEventJournalStorage >> deleteEventsAtAll: messageIds [
 ]
 
 { #category : 'actions' }
-HsEventJournalStorage >> deleteEventsFrom: fromMessageId [
+HsEventJournalStorage >> deleteEventsBefore: fromMessageId [
 	| eventIds |
-	eventIds := (self latestEventsFrom: fromMessageId) collect: [:each | each id].
-	^ self streamIterator deleteAtIds: eventIds 
+	eventIds := (self streamIteratorNextFrom: fromMessageId) reversed collect: [:each | each id].
+	^ self deleteEventsAtAll: eventIds 
 ]
 
 { #category : 'accessing' }
