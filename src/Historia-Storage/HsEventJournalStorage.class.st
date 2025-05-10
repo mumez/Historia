@@ -47,15 +47,41 @@ HsEventJournalStorage >> codecType [
 ]
 
 { #category : 'actions' }
-HsEventJournalStorage >> deleteEventsFrom: fromMessageId [
+HsEventJournalStorage >> deleteEventAt: aMessageId [ 
+	| deletedCount |
+	deletedCount := self eventStream deleteAt: aMessageId.
+	^ deletedCount = 1 
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> deleteEventsAfter: fromMessageId [
 	| eventIds |
-	eventIds := (self latestEventsFrom: fromMessageId) collect: [:each | each id].
-	^ self streamIterator deleteAtIds: eventIds 
+	eventIds := (self streamIteratorNextFrom: fromMessageId) collect: [:each | each id].
+	^ self deleteEventsAtAll: eventIds 
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> deleteEventsAtAll: messageIds [ 
+	| deletedCount |
+	deletedCount := self eventStream deleteAtIds: messageIds.
+	^ deletedCount 
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> deleteEventsBefore: fromMessageId [
+	| eventIds |
+	eventIds := (self streamIteratorNextFrom: fromMessageId) reversed collect: [:each | each id].
+	^ self deleteEventsAtAll: eventIds 
 ]
 
 { #category : 'accessing' }
 HsEventJournalStorage >> eventStream [
 	^ eventStream ifNil: [ eventStream := HsUtils default newEventStreamNamed: self spaceId ]
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> eventVersionsFrom: version limit: limit [
+	^ (self streamIterator contentsFrom: version count: limit) collect: [ :each | each id ]
 ]
 
 { #category : 'actions' }
@@ -66,6 +92,16 @@ HsEventJournalStorage >> eventVersionsReversedFrom: version limit: limit [
 { #category : 'actions' }
 HsEventJournalStorage >> eventVersionsReversedFromLast: limit [
 	^ (self streamIterator reversed contentsFrom: self lastEventVersion count: limit) collect: [ :each | each id ]
+]
+
+{ #category : 'actions' }
+HsEventJournalStorage >> eventsDo: iterationBlock limit: limit [
+	| count countAndDo |
+	count := 0.
+	countAndDo := [ :entry |
+	              iterationBlock value: (HsEvent fromStreamEntry: entry).
+	              count := count + 1 ].
+	^ self streamIterator do: countAndDo whileFalse: [ limit <= count ]
 ]
 
 { #category : 'actions' }
@@ -110,15 +146,6 @@ HsEventJournalStorage >> lastEventVersion [
 HsEventJournalStorage >> latestEventsFrom: fromMessageId [
 	^ (self streamIteratorNextFrom: fromMessageId) collect: [ :entry |
 		  HsEvent fromStreamEntry: entry ]
-]
-
-{ #category : 'actions' }
-HsEventJournalStorage >> markBadEventAt: aMessageId [ 
-	| event deletedCount |
-	event := self eventStream contentAt: aMessageId.
-	event ifNil: [ ^ self ].
-	deletedCount := self eventStream deleteAt: aMessageId.
-	^ deletedCount = 1 
 ]
 
 { #category : 'actions' }

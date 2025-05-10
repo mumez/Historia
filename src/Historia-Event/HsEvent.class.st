@@ -89,7 +89,7 @@ HsEvent class >> typeName [
 HsEvent >> = aEventRecord [
 	aEventRecord ifNil: [^ false].	
 	self typeName == aEventRecord typeName ifFalse: [^ false].
-	self eventId == aEventRecord eventId ifFalse: [^ false].
+	self eventId = aEventRecord eventId ifFalse: [^ false].
 	^ true
 ]
 
