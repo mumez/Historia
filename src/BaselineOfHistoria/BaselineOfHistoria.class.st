@@ -55,9 +55,7 @@ BaselineOfHistoria >> optionBaselineMessagePack: spec [
 	spec
 		group: 'MessagePackCodec' with: #( 'Historia-Codec-MessagePack' );
 		group: 'MessagePackCodec-Tests'
-		with: #( 'Historia-Tests-Codec-MessagePack' );
-		group: 'MessagePackCodecAll'
-		with: #( 'MessagePackCodec' 'MessagePackCodec-Tests' )
+		with: #( 'Historia-Tests-Codec-MessagePack' )
 ]
 
 { #category : 'external projects' }
