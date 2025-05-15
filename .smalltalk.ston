@@ -3,7 +3,7 @@ SmalltalkCISpec {
     SCIMetacelloLoadSpec {
       #baseline : 'Historia',
       #directory : 'src',
-      #load : [ 'Tests', 'Examples-Tests' 'MessagePackCodec-Tests'],
+      #load : [ 'Tests', 'Examples-Tests', 'MessagePackCodec-Tests'],
       #onConflict : #useLoaded,
       #useLatestMetacello : false,
       #onWarningLog : true,
