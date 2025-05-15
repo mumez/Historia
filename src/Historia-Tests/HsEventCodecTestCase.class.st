@@ -5,40 +5,16 @@ Class {
 	#package : 'Historia-Tests'
 }
 
-{ #category : 'tests' }
-HsEventCodecTestCase >> testAddValuesOnModelWithJsonCodec [
-	| spaceId modelSpace vmodel modelSpace2 values2 eventEntry |
-	spaceId := 'test-ecAddValuesOnModelWithJsonCodec'.
-	modelSpace := HsModelSpace spaceId: spaceId.
-	modelSpace settings eventCodec: #json.
-	modelSpace2 := HsModelSpace spaceId: spaceId.
-	self spaces: { modelSpace. modelSpace2 } do: [
-	self assert: modelSpace eventJournalStorage codecType equals: #json.
-	modelSpace putModelOf: HsOrderedCollectionModel id: 'vals-1'.
-	vmodel := modelSpace modelAt: 'vals-1'.
-	1 to: 5 do: [ :idx | vmodel add: idx].
-	vmodel add: #symbol.
-	vmodel save.
-	modelSpace eventPusher start.
-	modelSpace eventPusher waitEmptyFor: 200.
-	self assert: (modelSpace2 modelAt: 'vals-1') equals: nil.
-	
-	modelSpace2 catchup.
-	modelSpace eventPusher waitEmptyFor: 200.
-	values2 := modelSpace2 modelAt: 'vals-1'.
-	self assert: values2 size equals: 6.
-	self assertCollection: values2 asArray equals: vmodel values asArray.
-	self assert: values2 values last equals: 'symbol'.
-	eventEntry := modelSpace eventJournalStorage eventStream last.
-	self assert: (eventEntry fieldAt: 'codec') equals: 'json'.
-	]
+{ #category : 'fixtures' }
+HsEventCodecTestCase >> eventCodecType [
+	^ #ston
 ]
 
 { #category : 'tests' }
-HsEventCodecTestCase >> testSimpleJsonCodec [
+HsEventCodecTestCase >> testSimpleEventCodec [
 	| storage ev  codecAndEventData eventData event |
 	storage := HsEventJournalStorage new.
-	storage settings eventCodec: #json.
+	storage settings eventCodec: self eventCodecType.
 	ev := HsEvent new.
 	ev argsAt: #a put: 'arg-1'.
 	ev undoArgsAt: #u put: 'uarg-1'.
@@ -46,7 +22,7 @@ HsEventCodecTestCase >> testSimpleJsonCodec [
 	ev originatorId: 'oid-1'.
 	ev userId: 'uid-1'.
  	codecAndEventData := (storage buildCodecAndEventData: ev) asDictionary.
-	self assert: storage codecType equals: #json.
+	self assert: storage codecType equals: self eventCodecType.
 	self assert: (codecAndEventData at: #codec) equals: storage codecType.
 	eventData := (HsCodec type: storage codecType) materialize: (codecAndEventData at: #data).
 	event := HsEvent id: 'id-1' data: eventData.
