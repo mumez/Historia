@@ -10,7 +10,7 @@ BaselineOfHistoria >> baseline: spec [
 
 	<baseline>
 	spec for: #pharo do: [
-		self redistick: spec.
+		self rediStick: spec.
 		spec package: 'Historia-Core' with: [spec requires: #('RediStick')].
 		spec package: 'Historia-Codec'.
 		spec package: 'Historia-Event' with: [spec requires: #('Historia-Codec' 'Historia-Core')].
@@ -29,11 +29,37 @@ BaselineOfHistoria >> baseline: spec [
 			group: 'Tests' with: #( 'Historia-Tests' );
 			group: 'Examples' with: #('Historia-Examples-Bank');
 			group: 'Examples-Tests' with: #('Historia-Examples-Bank-Tests').
+		self optionBaselineMessagePack: spec.
 		]
 ]
 
 { #category : 'external projects' }
-BaselineOfHistoria >> redistick: spec [
+BaselineOfHistoria >> messagePack: spec [
+	spec
+		baseline: 'MessagePack'
+		with: [ spec
+				repository: 'github://msgpack/msgpack-smalltalk/repository';
+				loads: 'default' ]
+]
+
+{ #category : 'baseline' }
+BaselineOfHistoria >> optionBaselineMessagePack: spec [
+
+	self messagePack: spec.
+	spec
+		package: 'Historia-Codec-MessagePack'
+		with: [ spec requires: #( 'Historia-Codec' 'MessagePack' ) ].
+	spec package: 'Historia-Tests-Codec-MessagePack' with: [
+		spec requires:
+			#( 'Historia-Codec-MessagePack' 'Historia-Tests' 'Historia-Model' ) ].
+	spec
+		group: 'MessagePackCodec' with: #( 'Historia-Codec-MessagePack' );
+		group: 'MessagePackCodec-Tests'
+		with: #( 'Historia-Tests-Codec-MessagePack' )
+]
+
+{ #category : 'external projects' }
+BaselineOfHistoria >> rediStick: spec [
 	spec
 		baseline: 'RediStick'
 		with: [ spec
