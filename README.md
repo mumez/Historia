@@ -69,10 +69,35 @@ Please see the
 
 ## FAQ
 
-- Q: How to change Redis connection address / port?
+### Q: How to change Redis connection address / port?
 
-  A: Send `#targetUrl:` to `RsStreamSettings` default instance:
+A: Send `#targetUrl:` to `RsStreamSettings` default instance:
 
-  ```Smalltalk
-  RsStreamSettings default targetUrl: 'sync://localhost:6379'
-  ```
+```Smalltalk
+RsStreamSettings default targetUrl: 'sync://localhost:6379'
+```
+
+### Q: How do I use other event codecs?
+
+A: Set the event codec by sending `#eventCodec:` to the modelSpace's settings:
+
+```Smalltalk
+modelSpace settings eventCodec: #json.
+```
+
+The JSON codec is useful if you want to receive Historia events from other systems via the Redis event stream.
+
+If you need a more compact event format, you can use the MessagePack codec:
+
+```Smalltalk
+modelSpace settings eventCodec: #mp.
+```
+
+Note: The MessagePack codec is provided as an optional package. To use it, you must explicitly load it:
+
+```Smalltalk
+Metacello new
+  baseline: 'Historia';
+  repository: 'github://mumez/Historia:main/src';
+  load: #('MessagePackCodec').
+```
