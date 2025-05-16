@@ -99,5 +99,5 @@ Note: The MessagePack codec is provided as an optional package. To use it, you m
 Metacello new
   baseline: 'Historia';
   repository: 'github://mumez/Historia:main/src';
-  load: #('MessagePackCodec').
+  load: #('default' 'MessagePackCodec-Tests').
 ```
